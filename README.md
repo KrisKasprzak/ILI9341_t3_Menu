@@ -24,6 +24,7 @@ This library includes two menu objects
   <li>Menu item text can be changed at any time through code</li> 
   <li>Initial data in EditMenu objects can be set based on stored or set values</li>
   <li>Menu selector bars can have round or sharp corners and have a border to accentuate selection</li>
+  <li>Automatic up/down arrows on top and bottom screen rows to indicate to the user "there's more"</li>
 </ul> 
   <br>
   <br>
