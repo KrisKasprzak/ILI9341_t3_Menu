@@ -15,7 +15,7 @@ This library includes two menu objects
 
 <b>Watch this YouTube video:</b> https://youtu.be/KUi9f4hcV6A
 
-  highlights
+ <b>Library highlights</b>
   <ul>
   <li>Automatic wrapping for menu rows that exceed screen size</li> 
   <li>For EditMenu objects, edits can be within a defined range or from an array</li> 
