@@ -20,6 +20,7 @@ This library includes two menu objects
   <li>Programmer has full control over margins, colors, fonts, etc. </li> 
   <li>Menus can have up to 15 items, but expandable to more by editing the #define MAX_OPT 15</li> 
   <li>Menu items can be enabled or disabled through code</li> 
+  <li>Automatic wrapping during editing for items within editable menus</li> 
   <li>Menu item text can be changed at any time through code</li> 
   <li>Initial data in EditMenu objects can be set based on stored or set values</li>
   <li>Menu selector bars can have round or sharp corners and have a border to accentuate selection</li>
@@ -44,6 +45,7 @@ While this library was created for the ILI9341_t3 and intended for Teensy-based 
 
 I have included an example that shows how to create multi-menu system with both a simple select menu that call editable menus
 <br>
+ <br>
 ![header image](https://raw.github.com/KrisKasprzak/ILI9341_t3_Menu/master/Images/0003.jpg)
 ![header image](https://raw.github.com/KrisKasprzak/ILI9341_t3_Menu/master/Images/0073.jpg)
 
