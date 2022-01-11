@@ -22,7 +22,7 @@ While this library was created for the ILI9341_t3 and intended for Teensy-based 
 <br>
 <br>
 
-![header image](https://raw.github.com/KrisKasprzak/ILI9341_t3_Menu/master/0003.jpg)
+![header image](https://raw.github.com/KrisKasprzak/ILI9341_t3_Menu/master/Images/0003.jpg)
 ![header image](https://raw.github.com/KrisKasprzak/ILI9341_t3_Menu/master/0006.jpg)
 ![header image](https://raw.github.com/KrisKasprzak/ILI9341_t3_Menu/master/0007.jpg)
 ![header image](https://raw.github.com/KrisKasprzak/ILI9341_t3_Menu/master/0021.jpg)
