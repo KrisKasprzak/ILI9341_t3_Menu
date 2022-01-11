@@ -6,13 +6,14 @@
 This library will simplify creating and implementing a menu system for FTF displays that are use the ILI9341_t3 library and Teensy(R) microcontrollers. 
 This library includes two menu objects
 
-<b>Watch this YouTube video:</b> https://youtu.be/KUi9f4hcV6A
 
   1) A simple selection menu (ItemMenu) where the user can scroll up/down and select
   an item and some programmer defined action can be performed such as drawing a screen or activating a sub menu
   2) An menu with in-line menu (EditMenu) where the user can scroll up/down the list and select an item
   however the difference is that move/up down on a selected item will scroll the values stored with that
   menu item and NOT scroll the list, selecting a selected item will restore control to moving up/down the menu list
+
+<b>Watch this YouTube video:</b> https://youtu.be/KUi9f4hcV6A
 
   highlights
   <ul>
