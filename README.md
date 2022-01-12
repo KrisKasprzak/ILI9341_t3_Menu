@@ -1,9 +1,10 @@
 <b><h2><center>Version 1.0 updated 1/11/2021</center></h1></b>
 1. Initial library posting
+2. Added library for Adafruit_ILI9341 displays
 
 <b><h2><center>Menu System for ILI9341 displays and mechanical input buttons</center></h1></b>
 
-This library will simplify creating and implementing a menu system for TFT displays that are use the ILI9341_t3 library and Teensy(R) microcontrollers. 
+This library will simplify creating and implementing a menu system for TFT displays that are use either the ILI9341_t3 library and Teensy(R) microcontrollers or Adafruit_ILI9341 displays with microcontrollers such as the ESP32. 
 This library includes two menu objects
 
 
@@ -31,7 +32,7 @@ This library includes two menu objects
 </ul> 
   <br>
   <br>
-While this library was created for the ILI9341_t3 and intended for Teensy-based MCU's, the library can be adapted to other display drivers. Note the driver must use the Adafruit_GFX libraries. To allow other display drivers, modify the lines in the .h and .cpp files to allow a different driver to be passed in. For example change call such as SliderH(ILI9341_t3 *disp,... to SliderH(Adafruit_RA8875 *disp,...
+While this library was created for either the ILI9341_t3 and intended for Teensy-based MCU's or Adafruit_ILI9341 dricers, the library can be adapted to other display drivers. Note the driver must use the Adafruit_GFX libraries. To allow other display drivers, modify the lines in the .h and .cpp files to allow a different driver to be passed in. For example change call such as SliderH(ILI9341_t3 *disp,... to SliderH(Adafruit_RA8875 *disp,... and in the .cpp files you may have to change how fonts are set setFont(&SomeFont)
 <br>
 <br>
 
