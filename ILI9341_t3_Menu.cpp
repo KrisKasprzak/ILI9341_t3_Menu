@@ -23,14 +23,16 @@
 
   rev   date      author        change
   1.0   1/2022      kasprzak      initial code
+  2.0   1/2022      kasprzak      added touch support
 
 */
 
 #include "ILI9341_t3_Menu.h"
 #include <ILI9341_t3.h>     // fast display driver lib
 
-EditMenu::EditMenu(ILI9341_t3 *Display) {
+EditMenu::EditMenu(ILI9341_t3 *Display, bool EnableTouch) {
   d = Display;
+  enabletouch = EnableTouch;
 }
 
 void EditMenu::init(uint16_t TextColor, uint16_t BackgroundColor,
@@ -45,8 +47,9 @@ void EditMenu::init(uint16_t TextColor, uint16_t BackgroundColor,
   ihbc = HighlightColor;
   istc = SelectedTextColor;
   isbc = SelectedColor;
- 
+
   bcolor = TextColor;
+  sbcolor = TextColor;
   tbt = 0;        // title bar top
   tbl = 0;        // title bar left
   tbh = 40;       // title bar height
@@ -55,7 +58,12 @@ void EditMenu::init(uint16_t TextColor, uint16_t BackgroundColor,
   toy  = 8;       // y pixel offset for title text to manage height centering
   isx = 10;       // where to start the menu item from left, default indent 10
   mm = 5;
-  isy = tbt + tbh - ItemRowHeight + mm;  // where to start the menu item from top, default below menu bar by 10, note because array is 1 based we start drawing down a row--so back off a row, but pad 10
+  // isy = tbt + tbh - ItemRowHeight + mm;  // where to start the menu item from top, default below menu bar by 10, note because array is 1 based we start drawing down a row--so back off a row, but pad 10
+
+  isy = tbt + tbh + mm;  // where to start the menu item from top, note because array is 1 based we start drawing down a row--so back off a row, but pad 10
+
+
+
   irh = ItemRowHeight;  // select bar height
   irw = tbw - isx;    // select bar width, default to full width
   col = MenuColumn;
@@ -180,38 +188,136 @@ int EditMenu::selectRow() {
 }
 
 
-void EditMenu::drawHeader(bool drawtype) {
+void EditMenu::drawHeader(bool hl, uint8_t style) {
 
   d->setFont(titlef);
 
-  if (drawtype) {
-    // draw new menu bar
-    d->fillRect(tbl, tbt, tbw, tbh, ihbc);
-    d->setCursor(tbl + tox, tbt + toy);
-    d->setTextColor(ihtc);
-    d->print(etx);
-	if (tbh > 25) {
-		// anything less will distor the triangles
-		d->fillTriangle( tbw - (tbh/3.0) - 5,	tbt + (tbh/2.0) - 3,
-						 tbw - (tbh/6.0) - 5,	tbt + (tbh/2.0) -(tbh/3.0),
-						 tbw - 5,				tbt + (tbh/2.0) - 3,
-						 ihtc);
+  if (enabletouch) {
 
-		d->fillTriangle( tbw - (tbh/3.0) - 5,	tbt + (tbh/2.0) + 3,
-						 tbw - (tbh/6.0) - 5,	tbt + (tbh/2.0) +(tbh/3.0),
-						 tbw - 5,				tbt + (tbh/2.0) + 3,
-						 ihtc);
+    if (style == BUTTON_PRESSED) {
+      // draw new menu bar
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, ihbc);
+      d->setTextColor(ttc);
+      d->print(ttx);
+    }
+    else {
+      // draw new menu bar
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, tfc);
+      d->setTextColor(ttc);
+      d->print(ttx);
+    }
 
-	  }
+    if (totalID > imr) {
+      // up arrow
+      d->fillTriangle( tbl +  25 + 15 , tbt + tbh - 10, // bottom left
+                       tbl +  25 - 15 , tbt + tbh - 10, // bottom right
+                       tbl +  25    , tbt + 10, //center
+                       ttc);
+      // down arrow
+      d->fillTriangle( tbw -  25 + 15 , tbt + 10, // top left
+                       tbw -  25 - 15 , tbt + 10, // top right
+                       tbw -  25    , tbt + tbh - 10, //center
+                       ttc);
+    }
+
   }
   else {
-    d->fillRect(tbl, tbt, tbw, tbh, tfc);
-    d->setCursor(tbl + tox, tbt + toy);
+    if (hl) {
+      // draw new menu bar
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, ihbc);
+      d->setTextColor(ihtc);
+      d->print(etx);
 
-    d->setTextColor(ttc);
-    d->print(ttx);
+      d->fillTriangle( tbw - (tbh / 3.0) - 5, tbt + (tbh / 2.0) - 3,
+                       tbw - (tbh / 6.0) - 5, tbt + (tbh / 2.0) - (tbh / 3.0),
+                       tbw - 5,       tbt + (tbh / 2.0) - 3,
+                       ihtc);
+
+      d->fillTriangle( tbw - (tbh / 3.0) - 5, tbt + (tbh / 2.0) + 3,
+                       tbw - (tbh / 6.0) - 5, tbt + (tbh / 2.0) + (tbh / 3.0),
+                       tbw - 5,       tbt + (tbh / 2.0) + 3,
+                       ihtc);
+    }
+
+    else {
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, tfc);
+      d->setTextColor(ttc);
+      d->print(ttx);
+    }
   }
 
+
+
+}
+
+int EditMenu::press(int16_t ScreenX, int16_t ScreenY) {
+
+  int bs;
+
+
+  // check if header pressed
+  if (  (ScreenX > tbl) && (ScreenX < (tbw + tbl))  &&  (ScreenY > tbt ) && (ScreenY < (tbt + tbh) )) {
+
+    if (ScreenX < (tbl + 25 + 15)) {
+      // up arrow
+      MoveDown();
+      return -1;
+    }
+
+    if (ScreenX > (tbw - 25 - 15)) {
+      // down arrow
+      MoveUp();
+      return -1;
+    }
+
+    // above will allow arrow up down but
+    // let's not allow menu exit until they are done editing the line item
+    if (rowselected) {
+      return - 1;
+    }
+    // not up / down and nothing selected, allow menu exit
+    return 0;
+  }
+
+  for (i = 1; i <= imr; i++) {
+    bs = icox + bmp_w[i + sr] + isx;
+    itx = bs + iox;
+
+    if (
+      (ScreenX > bs) &&
+      (ScreenY > (isy + (irh * (i - 1)))) &&
+      (ScreenX < (irw)) &&
+      (ScreenY < (isy + irh + (irh * (i - 1))))
+    ) {
+      if (!enablestate[i + sr]) {
+        return -1;
+      }
+      delay(100);
+      if (rowselected) {
+        if (i == cr) {
+          rowselected = !rowselected;
+          item = i + sr;
+          cr = i;
+          currentID = i + sr;
+          //drawRow(currentID);
+          return currentID;
+        }
+      }
+      else {
+        rowselected = !rowselected;
+        currentID = i + sr;
+        cr = i;
+        //drawRow(currentID);
+        return currentID;
+      }
+    }
+
+  }
+  return -1;
 }
 
 void EditMenu::up() {
@@ -222,25 +328,23 @@ void EditMenu::up() {
     while (enablestate[currentID] == false) {
       cr--;
       currentID--;
-       drawItems();
+      drawItems();
     }
   }
-
 }
 
 void EditMenu::down() {
+
   cr++;
   currentID++;
-   drawItems();
+  drawItems();
   if (enablestate[currentID] == false) {
     while (enablestate[currentID] == false) {
       cr++;
       currentID++;
-       drawItems();
+      drawItems();
     }
   }
- 
-
 }
 
 
@@ -268,22 +372,20 @@ void EditMenu::MoveDown() {
 
 
 void EditMenu::draw() {
-  drawHeader(false);
-
+  drawHeader(false, 0);
   drawItems();
 }
 
-
 void EditMenu::drawItems() {
 
-  int tpr = 0;
-  int bs ;
+  int  bs;
+
   if (imr > totalID) {
     imr = totalID;
   }
   redraw = false;
-
   // determine if we need to pan or just increment the list
+
   if ((currentID >  totalID) && (sr >= 0) ) {
     // up to top
     cr = 0;
@@ -291,7 +393,6 @@ void EditMenu::drawItems() {
     sr = 0;
     redraw = true;
   }
-
   else if ( (cr < 0) && (sr == 0) ) {
     //  pan whole menu to bottom
     cr = imr;
@@ -333,21 +434,25 @@ void EditMenu::drawItems() {
 
   // determine if we need to redraw the header and draw
   if ((currentID == 0) && (cr == 0)) {
-    drawHeader(true);
+    drawHeader(true, 0);
+    redrawh = true;
   }
   else if ((pr == 0) && (cr > 0)) {
-    drawHeader(false);
+    if (redrawh) {
+      redrawh = false;
+      drawHeader(false, 0);
+    }
   }
+
   d->setFont(itemf);
+
   // now draw the items in the rows
   for (i = 1; i <= imr; i++) {
+    // menu bar start
+    bs = icox + bmp_w[i + sr] + isx;
 
-    if (redraw) {
-      // pr = i;
-      // scroll so blank out every row
-      d->fillRect(isx, isy + (irh * i) , irw, irh, ibc); // back color
-
-    }
+    // text start
+    itx = bs + iox;
 
     if (enablestate[i + sr]) {
       temptColor = itc;
@@ -356,59 +461,57 @@ void EditMenu::drawItems() {
       temptColor = ditc;
     }
 
+    if (redraw) {
+      // scroll so blank out every row including icon since row will get scrolled
+      d->fillRect(bs, isy - irh + (irh * i), irw - bs, irh, ibc); // back color
+    }
+
     if (i == pr) {
       // maybe just row change so blank previous
-      d->fillRect(isx + bmp_w[i + sr], isy + (irh * pr) , irw - bmp_w[i + sr], irh, ibc); // back color
+      d->fillRect(bs, isy - irh + (irh * pr) , irw - bs, irh, ibc); // back color
+    }
+
+    if ((i == cr) && (!enabletouch)) {
+
+      if (radius > 0) {
+        d->fillRoundRect(bs,      isy - irh + (irh * i) ,      irw - bs,       irh,        radius,   bcolor);
+        d->fillRoundRect(bs + thick,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick),  irh - (2 * thick),  radius,   ihbc);
+      }
+      else {
+        d->fillRect(bs,       isy - irh + (irh * i) ,      irw - bs  ,        irh, bcolor);
+        d->fillRect(bs + thick ,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick) , irh - (2 * thick), ihbc);
+      }
+
+      if (moreup) {
+        d->fillTriangle(irw - 8 - thick,              isy - irh + (irh * i) + irh - (irh / TRIANGLE_H),
+                        irw - ((irh / TRIANGLE_W)*.5) - 8 - thick, isy - irh + (irh * i) + (irh / TRIANGLE_H),
+                        irw - (irh / TRIANGLE_W) - 8 - thick,    isy - irh + (irh * i) + irh - (irh / TRIANGLE_H), ihtc);
+      }
+      if (moredown) {
+        d->fillTriangle(irw - 8 - thick,                 isy - irh + (irh * i) + (irh / TRIANGLE_H),
+                        irw - ((irh / TRIANGLE_W)*.5) - 8 - thick, isy - irh + (irh * i) + irh - (irh / TRIANGLE_H),
+                        irw - (irh / TRIANGLE_W) - 8 - thick,    isy - irh + (irh * i) + (irh / TRIANGLE_H),     ihtc);
+      }
+      temptColor = ihtc;
 
     }
 
-	// icon start 
-	// icox;
-	// menu bar start 
-	bs =	 icox + bmp_w[i + sr] + isx;
-	// text start
-	itx = bs + iox;
+    // write bitmap
 
-    if (i == cr) {
-
-		if (radius > 0){
-			d->fillRoundRect(bs,			isy + (irh * i),			irw - bs				,	irh,				radius,bcolor);
-			d->fillRoundRect(bs + thick,	isy + (irh * i) + thick,	irw - bs - (2*thick)	,	irh - (2*thick),	radius, ihbc);
-		}
-		else {
-			d->fillRect(bs,			isy + (irh * i) ,			irw - bs,				irh, bcolor);
-			d->fillRect(bs + thick,	isy + (irh * i) + thick,	irw - bs - (2*thick) ,	irh - (2*thick), ihbc);
-		}
-
-		
-      tpr = i;
-	 
-		if (moreup) {
-		d->fillTriangle(irw - 2 - (2*thick),							isy + (irh * i) + irh - (irh / TRIANGLE_H),
-						irw - ((irh / TRIANGLE_W)*.5) - 2- (2*thick),	isy + (irh * i) + (irh / TRIANGLE_H),
-						irw - (irh / TRIANGLE_W) - 2- (2*thick),		isy + (irh * i) + irh - (irh / TRIANGLE_H),
-						ihtc);
-		}
-		if (moredown) {
-		d->fillTriangle(irw - 2- (2*thick),								isy + (irh * i) + (irh / TRIANGLE_H),
-						irw - ((irh / TRIANGLE_W)*.5) - 2- (2*thick),	isy + (irh * i) + irh - (irh / TRIANGLE_H),
-						irw - (irh / TRIANGLE_W) - 2- (2*thick),		isy + (irh * i) + (irh / TRIANGLE_H),
-						ihtc);
-		}
-
-	  temptColor = ihtc;
-
-
+    if (IconType[i + sr] == ICON_MONO) {
+      drawMonoBitmap(icox,  icoy + isy - irh + (irh * i), itemBitmap[i + sr], bmp_w[i + sr], bmp_h[i + sr], itc );
+    }
+    else if (IconType[i + sr] == ICON_565) {
+      draw565Bitmap(icox,  icoy + isy - irh + (irh * i), item565Bitmap[i + sr], bmp_w[i + sr], bmp_h[i + sr] );
     }
 
-	// write new text
-
+    // write text
     d->setTextColor(temptColor);
-    d->setCursor(itx, isy + (irh * i) + ioy);
+    d->setCursor(itx , isy - irh + (irh * i) + ioy);
     d->print(itemlabel[i + sr]);
 
     // write new val
-    d->setCursor(col , isy + (irh * i) + ioy);
+    d->setCursor(col , isy - irh + (irh * i) + ioy);
     if (haslist[i + sr]) {
       d->print(itemtext[i + sr][(int) data[i + sr]]);
     }
@@ -416,80 +519,101 @@ void EditMenu::drawItems() {
       d->print(data[i + sr], dec[i + sr]);
     }
 
-
-    // write bitmap
-    if (IconType[i + sr] == ICON_MONO) {
-      drawMonoBitmap(icox,  icoy + isy + (irh * i), itemBitmap[i + sr], bmp_w[i + sr], bmp_h[i + sr], temptColor );
-    }
-    else if (IconType[i + sr] == ICON_565) {
-      draw565Bitmap(icox,  icoy + isy + (irh * i), item565Bitmap[i + sr], bmp_w[i + sr], bmp_h[i + sr] );
-    }
-
-
   }
 
   moreup = false;
   moredown = false;
-  pr = tpr;
+  pr = cr;
 
 }
 
+void EditMenu::drawRow(int ID) {
 
-
-void EditMenu::drawRow(int itemID) {
-
+  int  bs;
+  int hr = ID - sr;
   bool drawarrow = false;
-  uint16_t textcolor, backcolor, bordercolor;
-  bordercolor = bcolor;
+
+  uint16_t textcolor, backcolor;
 
   moredown = false;
   moreup = false;
 
-  	// compute starting place for text
-	itx = isx + icox +  bmp_w[itemID];
-	 bordercolor = bcolor;
-	 textcolor = itc;
+  // compute starting place for text
+  itx = isx + icox +  bmp_w[ID];
+  textcolor = itc;
 
-  if (itemID <= sr) {
+  if (ID == 0) {
+    drawHeader(false, rowselected);
+  }
+
+  if (ID <= 0) {
+    return;
+  }
+
+  bs = icox + bmp_w[hr] + isx;
+
+  if (ID <= sr) {
     // item is off screen
     return;
   }
 
-  if (itemID > (sr + imr)) {
+  if (ID > (sr + imr)) {
     // item is off screen
     return;
   }
 
-  if ((cr + sr) == itemID) {
-    // current row is draw row AND selected
-    textcolor = istc;
-    backcolor = isbc;
-    drawarrow = false;
+  if (enabletouch) {
 
-    if (!rowselected) {
-      // case 2 = current row is draw row AND highlighted
-      textcolor = ihtc;
-      backcolor = ihbc;
-      drawarrow = true;
-    }
-    else if (rowselected) {
-      textcolor = istc;
-      backcolor = isbc;
-      drawarrow = false;
-    }
-  }
-  else  {
-    // current row is not selected
-    if (enablestate[itemID]) {
-      textcolor = itc;
-	  bordercolor = ibc;
+    if (ID == currentID) {
+      if (!rowselected) {
+        textcolor = itc;
+        backcolor = ibc;
+      }
+      else {
+        // case draw row is the selected row
+        textcolor = istc;
+        backcolor = isbc;
+      }
     }
     else {
-      textcolor = ditc;
-	  bordercolor = ibc;
+      // case draw row is not the selected row
+      textcolor = itc;
+      backcolor = ibc;
     }
-    backcolor = ibc;
-    drawarrow = true;
+
+    if (!enablestate[hr]) {
+      textcolor = ditc;
+    }
+  }
+  else {
+    if ((cr + sr) == ID) {
+
+      if (!rowselected) {
+        // case 1 draw som is draw row AND highlighted
+        textcolor = ihtc;
+        backcolor = ihbc;
+        drawarrow = true;
+
+      }
+      else if (rowselected) {
+        // case 2 = current row is draw row AND highlighted
+        textcolor = istc;
+        backcolor = isbc;
+        drawarrow = false;
+
+      }
+    }
+    else  {
+      // current row is not selected
+      if (enablestate[ID]) {
+        textcolor = itc;
+      }
+      else {
+        textcolor = ditc;
+      }
+      backcolor = ibc;
+      drawarrow = true;
+    }
   }
 
   if ((cr == 5) && (!rowselected)) {
@@ -503,53 +627,103 @@ void EditMenu::drawRow(int itemID) {
     moreup = true;
   }
 
-	if (radius > 0){
-		d->fillRoundRect(itx,			isy + (irh * (itemID - sr)) ,			irw - itx,				irh,		radius,bordercolor);
-		d->fillRoundRect(itx + thick,	isy + (irh * (itemID - sr)) + thick,	irw - itx - (2*thick) - isx , irh - (2*thick), radius, backcolor);
-	}
-	else {
-		d->fillRect(itx,			isy + (irh * (itemID - sr)) ,			irw -itx  ,				irh, bcolor);
-		d->fillRect(itx + thick,	isy + (irh * (itemID - sr)) + thick,	irw - itx - (2*thick) ,	irh - (2*thick), backcolor);
+  if (enabletouch) {
+    drawarrow = false;
+  }
 
-	}
-
-  d->setFont(itemf);
-  d->setTextColor(textcolor);
-  d->setCursor(itx + iox, isy + (irh * (itemID - sr)) + ioy);
-  d->print(itemlabel[itemID]);
-
-  d->setCursor(col , isy + (irh * (itemID - sr)) + ioy);
-  if (haslist[itemID]) {
-    d->print(itemtext[itemID][(int) data[itemID]]);
+  if (ID == 0) {
+    if (rowselected) {
+      // draw new menu bar
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, ihbc);
+      d->setTextColor(ttc);
+      d->print(ttx);
+    }
+    else {
+      // draw new menu bar
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, tfc);
+      d->setTextColor(ttc);
+      d->print(ttx);
+    }
   }
   else {
-    d->print(data[itemID], dec[itemID]);
 
-  }
-
-  // write bitmap
-  if (IconType[itemID] == ICON_MONO) {
-    drawMonoBitmap(icox,  icoy + isy + (irh * (itemID - sr)), itemBitmap[itemID], bmp_w[itemID], bmp_h[itemID], temptColor );
-  }
-  else if (IconType[itemID] == ICON_565) {
-    draw565Bitmap(icox,  icoy + isy + (irh * (itemID - sr)), item565Bitmap[itemID], bmp_w[itemID], bmp_h[itemID] );
-  }
-
-
-  if (drawarrow) {
-    if (moreup) {
-      d->fillTriangle(  irw - 2-(2*thick),             isy + (irh * cr) + irh - (irh / TRIANGLE_H),
-                        irw - ((irh / TRIANGLE_W)*.5) - 2-(2*thick),  isy + (irh * cr) + (irh / TRIANGLE_H),
-                        irw - (irh / TRIANGLE_W) - 2-(2*thick),   isy + (irh * cr) + irh - (irh / TRIANGLE_H),
-                        ihtc);
+    if (!enabletouch) {
+      // non touch
+      if (radius > 0) {
+        d->fillRoundRect(bs,      isy - irh + (irh * hr) ,     irw - bs,       irh,        radius,   sbcolor);
+        d->fillRoundRect(bs + thick,  isy - irh + (irh * hr) + thick,  irw - bs - (2 * thick),  irh - (2 * thick),  radius,   backcolor);
+      }
+      else {
+        d->fillRect(bs,       isy - irh + (irh * hr) ,     irw - bs  ,        irh, backcolor);
+      }
     }
-    else if (moredown) {
-      d->fillTriangle(  irw - 2-(2*thick),              isy + (irh * cr) + (irh / TRIANGLE_H),
-                        irw - ((irh / TRIANGLE_W)*.5) - 2-(2*thick),  isy + (irh * cr) + irh - (irh / TRIANGLE_H),
-                        irw - (irh / TRIANGLE_W) - 2-(2*thick),   isy + (irh * cr) + (irh / TRIANGLE_H),
-                        ihtc);
+
+    else {
+      // touch
+      if (rowselected) {
+
+        if (radius > 0) {
+          d->fillRoundRect(bs,      isy - irh + (irh * hr) ,     irw - bs,       irh,        radius,   sbcolor);
+          d->fillRoundRect(bs + thick,  isy - irh + (irh * hr) + thick,  irw - bs - (2 * thick),  irh - (2 * thick),  radius,   backcolor);
+        }
+        else {
+          d->fillRect(bs,       isy - irh + (irh * hr) ,     irw - bs  ,        irh, backcolor);
+        }
+
+      }
+      else {
+
+        d->fillRect(bs, isy - irh + (irh * hr) , irw - bs, irh, ibc); // back color
+
+      }
     }
+
+    // write text
+    itx = bs + iox;
+    d->setFont(itemf);
+    d->setTextColor(textcolor);
+    d->setCursor(itx , isy - irh + (irh * hr) + ioy);
+    d->print(itemlabel[ID]);
+
+    d->setCursor(col , isy - irh + (irh * (ID - sr)) + ioy);
+    if (haslist[ID]) {
+      d->print(itemtext[ID][(int) data[ID]]);
+    }
+    else {
+      d->print(data[ID], dec[ID]);
+    }
+
+    // write bitmap
+    if (IconType[ID] == ICON_MONO) {
+      drawMonoBitmap(icox,  icoy + isy - irh + (irh * (ID - sr)), itemBitmap[ID], bmp_w[ID], bmp_h[ID], temptColor );
+    }
+    else if (IconType[ID] == ICON_565) {
+      draw565Bitmap(icox,  icoy + isy - irh + (irh * (ID - sr)), item565Bitmap[ID], bmp_w[ID], bmp_h[ID] );
+    }
+
+    if (drawarrow) {
+      if (moreup) {
+        d->fillTriangle(  irw - 2 - (2 * thick),             isy + (irh * cr) - irh + irh - (irh / TRIANGLE_H),
+                          irw - ((irh / TRIANGLE_W)*.5) - 2 - (2 * thick),  isy - irh + (irh * cr) + (irh / TRIANGLE_H),
+                          irw - (irh / TRIANGLE_W) - 2 - (2 * thick),   isy - irh + (irh * cr) + irh - (irh / TRIANGLE_H),
+                          ihtc);
+      }
+      else if (moredown) {
+        d->fillTriangle(  irw - 2 - (2 * thick),              isy - irh + (irh * cr) + (irh / TRIANGLE_H),
+                          irw - ((irh / TRIANGLE_W)*.5) - 2 - (2 * thick),  isy - irh + (irh * cr) + irh - (irh / TRIANGLE_H),
+                          irw - (irh / TRIANGLE_W) - 2 - (2 * thick),   isy - irh + (irh * cr) + (irh / TRIANGLE_H),
+                          ihtc);
+      }
+    }
+
   }
+}
+
+void EditMenu::setIncrementDelay(uint16_t Delay) {
+
+  incdelay = Delay;
 
 }
 
@@ -558,55 +732,63 @@ void EditMenu::incrementUp() {
   d->setFont(itemf);
   d->setTextColor(istc);
 
+
   if (haslist[currentID]) {
 
     if ((data[currentID] + inc[currentID]) < high[currentID]) {
       data[currentID] += inc[currentID];
-	  d->fillRect(col, isy + (irh * cr)+thick, irw - col - (2*thick), irh- (2*thick), isbc);
-      d->setCursor(col + iox , isy + (irh * cr) + ioy);
+      d->fillRect(col, isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
+      d->setCursor(col + iox , isy - irh + (irh * cr) + ioy);
       d->print(itemtext[currentID][(int) data[currentID]]);
     }
     else {
       data[currentID] = low[currentID];
-      d->fillRect(col, isy + (irh * cr)+thick, irw - col - (2*thick), irh- (2*thick), isbc);
-      d->setCursor(col, isy + (irh * cr) + ioy);
+      d->fillRect(col, isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
+      d->setCursor(col, isy - irh + (irh * cr) + ioy);
       d->print(itemtext[currentID][(int) data[currentID]]);
     }
 
   }
   else {
+
     data[currentID] += inc[currentID];
     if (data[currentID] > high[currentID]) {
       data[currentID] = low[currentID];
     }
-    d->fillRect(col, isy + (irh * cr)+thick, irw - col - (2*thick), irh- (2*thick), isbc);
-    d->setCursor(col +  iox, isy + (irh * cr) + ioy);
+    d->fillRect(col, isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
+    d->setCursor(col +  iox, isy - irh + (irh * cr) + ioy);
     d->print(data[currentID], dec[currentID]);
   }
+
   if (IconType[currentID] == ICON_MONO) {
-    drawMonoBitmap(icox,  icoy + isy + (irh * cr), itemBitmap[currentID], bmp_w[currentID], bmp_h[currentID], temptColor );
+    drawMonoBitmap(icox,  icoy + isy - irh + (irh * cr), itemBitmap[currentID], bmp_w[currentID], bmp_h[currentID], temptColor );
   }
   else if (IconType[currentID] == ICON_565) {
-    draw565Bitmap(icox,  icoy + isy + (irh * cr), item565Bitmap[currentID], bmp_w[currentID], bmp_h[currentID] );
+    draw565Bitmap(icox,  icoy + isy - irh + (irh * cr), item565Bitmap[currentID], bmp_w[currentID], bmp_h[currentID] );
   }
+  delay(incdelay);
   value[currentID] = data[currentID];
   item = currentID;
 }
 
+
+
+
 void EditMenu::incrementDown() {
-     d->setFont(itemf);
-      d->setTextColor(istc);
+
+  d->setFont(itemf);
+  d->setTextColor(istc);
   if (haslist[currentID]) {
     if ((data[currentID] - inc[currentID]) >= low[currentID]) {
       data[currentID] -= inc[currentID];
-      d->fillRect(col , isy + (irh * cr)+thick, irw - col - (2*thick), irh- (2*thick), isbc);
-      d->setCursor(col , isy + (irh * cr) + ioy);
+      d->fillRect(col , isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
+      d->setCursor(col , isy - irh + (irh * cr) + ioy);
       d->print(itemtext[currentID][(int) data[currentID]]);
     }
     else {
       data[currentID] = high[currentID] - 1;
-      d->fillRect(col , isy + (irh * cr)+thick, irw - col - (2*thick), irh- (2*thick), isbc);
-      d->setCursor(col, isy + (irh * cr) + ioy);
+      d->fillRect(col , isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
+      d->setCursor(col, isy - irh + (irh * cr) + ioy);
       d->print(itemtext[currentID][(int) data[currentID]]);
     }
   }
@@ -615,18 +797,18 @@ void EditMenu::incrementDown() {
     if (data[currentID] < low[currentID]) {
       data[currentID] = high[currentID];
     }
-    d->fillRect(col, isy + (irh * cr)+thick, irw - col - (2*thick), irh- (2*thick), isbc);
-    d->setCursor(col , isy + (irh * cr) + ioy);
+    d->fillRect(col, isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
+    d->setCursor(col , isy - irh + (irh * cr) + ioy);
     d->print(data[currentID], dec[currentID]);
   }
 
   if (IconType[currentID] == ICON_MONO) {
-    drawMonoBitmap(icox,  icoy + isy + (irh * cr), itemBitmap[currentID], bmp_w[currentID], bmp_h[currentID], temptColor );
+    drawMonoBitmap(icox,  icoy + isy  - irh + (irh * cr), itemBitmap[currentID], bmp_w[currentID], bmp_h[currentID], temptColor );
   }
   else if (IconType[currentID] == ICON_565) {
-    draw565Bitmap(icox,  icoy + isy + (irh * cr), item565Bitmap[currentID], bmp_w[currentID], bmp_h[currentID] );
+    draw565Bitmap(icox,  icoy + isy  - irh + (irh * cr), item565Bitmap[currentID], bmp_w[currentID], bmp_h[currentID] );
   }
-
+  delay(incdelay);
   value[currentID] = data[currentID];
   item = currentID;
 
@@ -637,7 +819,7 @@ void EditMenu::setTitleColors( uint16_t TitleTextColor, uint16_t TitleFillColor)
   tfc = TitleFillColor;
 }
 
-void EditMenu::setTitleBarSize(uint16_t TitleTop, uint16_t TitleLeft, uint16_t TitleWith, uint16_t TitleHeight){
+void EditMenu::setTitleBarSize(uint16_t TitleTop, uint16_t TitleLeft, uint16_t TitleWith, uint16_t TitleHeight) {
   tbt = TitleTop;
   tbl = TitleLeft;
   tbw = TitleWith;
@@ -649,7 +831,7 @@ void EditMenu::setTitleText( char *TitleText,  char *ExitText) {
   strncpy(etx, ExitText, MAX_CHAR_LEN);
 }
 
-void EditMenu::setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin){
+void EditMenu::setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin) {
   tox = LeftMargin; // pixels to offset text in menu bar
   toy = TopMargin;  // pixels to offset text in menu bar
 }
@@ -659,25 +841,44 @@ void EditMenu::setMenuBarMargins(uint16_t LeftMargin, uint16_t Width, uint16_t B
   isx = LeftMargin;  // pixels to offset text in menu bar
   irw = Width - isx;  // pixels to offset text in menu bar
   radius = BorderRadius;
-  thick = BorderThickness;   
+  thick = BorderThickness;
 }
 
-void EditMenu::setItemColors( uint16_t DisableTextColor, uint16_t BorderColor) {
+void EditMenu::setItemColors( uint16_t DisableTextColor, uint16_t HighlightBorderColor, uint16_t SelectBorderColor) {
   ditc = DisableTextColor;
-  bcolor = BorderColor;
+  bcolor = HighlightBorderColor;
+  sbcolor = SelectBorderColor;
 }
 
+void EditMenu::SetAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
+							uint16_t HighlightTextColor, uint16_t HighlightColor, uint16_t HighlightBorderColor,
+							uint16_t SelectedTextColor, uint16_t SelectedColor, uint16_t SelectBorderColor,
+							uint16_t DisableTextColor ,	uint16_t TitleTextColor, uint16_t TitleFillColor){
+
+	itc = TextColor;
+	ibc = BackgroundColor;
+	ihtc = HighlightTextColor;
+	ihbc = HighlightColor;
+	bcolor = HighlightBorderColor;
+	istc = SelectedTextColor;
+	isbc = SelectedColor;
+	sbcolor = SelectBorderColor;
+	ttc = TitleTextColor;
+	tfc = TitleFillColor;
+	ditc = DisableTextColor;
+	
+	}
 
 void EditMenu::setItemTextMargins(uint16_t LeftMargin, uint16_t TopMargin, uint16_t MenuMargin) {
   iox = LeftMargin;  // pixels to offset text in menu bar
   ioy = TopMargin;  // pixels to offset text in menu bar
-  mm = MenuMargin; ////////////////////////////////////////////////
-  isy = tbt + tbh - irh + mm;
+  mm = MenuMargin;
+  isy = tbt + tbh + mm;
 }
 
-void EditMenu::setItemText(int ItemID, const char *ItemText) {
-	strcpy(itemlabel[ItemID], ItemText);
-	drawRow(ItemID);
+void EditMenu::setItemText(int ID, const char *ItemText) {
+  strcpy(itemlabel[ID], ItemText);
+  drawRow(ID);
 }
 
 void EditMenu::setIconMargins(uint16_t LeftMargin, uint16_t TopMargin) {
@@ -698,8 +899,8 @@ bool EditMenu::getEnableState(int ID) {
   return enablestate[ID];
 }
 
-void EditMenu::SetItemValue(int ItemID, float ItemValue){
-	data[ItemID] = ItemValue;
+void EditMenu::SetItemValue(int ID, float ItemValue) {
+  data[ID] = ItemValue;
 }
 
 void EditMenu::drawMonoBitmap(int16_t x, int16_t y, const unsigned char *bitmap, uint8_t w, uint8_t h, uint16_t color) {
@@ -737,16 +938,16 @@ void EditMenu::draw565Bitmap(int16_t x, int16_t y, const uint16_t *bitmap, uint8
 
 /*
 
-
-
+  object type to create a simple selection only menu unlike previous where selecting a line item would allow in-line editing
 
 
 */
 
 
 
-ItemMenu::ItemMenu(ILI9341_t3 *Display) {
+ItemMenu::ItemMenu(ILI9341_t3 *Display, bool EnableTouch) {
   d = Display;
+  enabletouch = EnableTouch;
 }
 
 void ItemMenu::init(uint16_t TextColor, uint16_t BackgroundColor,
@@ -759,24 +960,24 @@ void ItemMenu::init(uint16_t TextColor, uint16_t BackgroundColor,
   ihtc = HighlightTextColor;
   ihbc = HighlightColor;
   bcolor = TextColor;
-  tbt = 0;        // title bar top
-  tbl = 0;        // title bar left
-  tbh = 40;       // title bar height
+  tbt = 0;      // title bar top
+  tbl = 0;      // title bar left
+  tbh = 40;     // title bar height
   tbw = d->width(); // title bar width, default to screen width
-  tox = 20;       // x pixel offset for title text to offset from left a bit
+  tox = 20;     // x pixel offset for title text to offset from left a bit
   toy  = 10;        // y pixel offset for title text to manage height offset from top
-  isx = 0;        // where to start the menu item from left, default indent 10
+  isx = 0;      // where to start the menu item from left, default indent 10
   icox = 0;
   icoy = 0;
   mm = 5;
-  isy = tbt + tbh - ItemRowHeight + mm;  // where to start the menu item from top, note because array is 1 based we start drawing down a row--so back off a row, but pad 10
+  isy = tbt + tbh + mm; // where to start the menu item from top, note because array is 1 based we start drawing down a row--so back off a row, but pad 10
   irh = ItemRowHeight;  // select bar height
   irw = tbw - isx;    // select bar width, default to full width
   imr = MaxRow;     // user has to indicate this
   iox = 0;        // pixels to offset text in menu bar
   ioy = 0;        // pixels to offset text in menu bar
   itemf = ItemFont;     // item font
-  titlef = TitleFont;      // menu bar font, default to item font
+  titlef = TitleFont;   // menu bar font, default to item font
   ttc = TextColor;    // title text color
   tfc = HighlightColor; // title fill color
   ditc = MENU_C_DKGREY;
@@ -784,11 +985,11 @@ void ItemMenu::init(uint16_t TextColor, uint16_t BackgroundColor,
   strncpy(etx, EXIT_TEXT, 6);
   item = 1;
   drawTitleFlag = true; // flag if we draw menu bar again
-  currentID = 1;      // id of current highlighted or selected item (1 to ID)
-  cr = 1;         // current selected row on the screen (1 to mr-1)
+  currentID = 1;    // id of current highlighted or selected item (1 to ID)
+  cr = 1;       // current selected row on the screen (1 to mr-1)
   totalID = 0;      // maximum number of items (where first position is 1)
-  sr = 0;         // draw offset for the menu array where first postion is 0
-  pr = 1;         // previous selected rown (1 to mr - 1)
+  sr = 0;       // draw offset for the menu array where first postion is 0
+  pr = 1;       // previous selected rown (1 to mr - 1)
   rowselected = false;
   enablestate[0] = true;
   redraw = true;
@@ -837,55 +1038,203 @@ int ItemMenu::add565(const char *ItemLabel, const uint16_t *Bitmap, uint8_t Bitm
   return (totalID);
 }
 
-void ItemMenu::drawHeader(bool hl) {
+void ItemMenu::drawHeader(bool hl, uint8_t style) {
+
   d->setFont(titlef);
 
-  if (hl) {
-    // draw new menu bar
-    d->setCursor(tbl + tox, tbt + toy);
-    d->fillRect(tbl, tbt, tbw, tbh, ihbc);
-    d->setTextColor(ihtc);
-    d->print(etx);
+  if (enabletouch) {
 
-  	d->fillTriangle( tbw - (tbh/3.0) - 5,	tbt + (tbh/2.0) - 3,
-                     tbw - (tbh/6.0) - 5,	tbt + (tbh/2.0) -(tbh/3.0),
-                     tbw - 5,				tbt + (tbh/2.0) - 3,
-                     ihtc);
+    if (style == BUTTON_PRESSED) {
+      // draw new menu bar
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, ihbc);
+      d->setTextColor(ttc);
+      d->print(ttx);
+    }
+    else {
+      // draw new menu bar
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, tfc);
+      d->setTextColor(ttc);
+      d->print(ttx);
+    }
 
-	d->fillTriangle( tbw - (tbh/3.0) - 5,	tbt + (tbh/2.0) + 3,
-                     tbw - (tbh/6.0) - 5,	tbt + (tbh/2.0) +(tbh/3.0),
-                     tbw - 5,				tbt + (tbh/2.0) + 3,
-                     ihtc);
+    if (totalID > imr) {
+      // up arrow
+      d->fillTriangle( tbl +  25 + 15 , tbt + tbh - 10, // bottom left
+                       tbl +  25 - 15 , tbt + tbh - 10, // bottom right
+                       tbl +  25    , tbt + 10, //center
+                       ttc);
+      // down arrow
+      d->fillTriangle( tbw -  25 + 15 , tbt + 10, // top left
+                       tbw -  25 - 15 , tbt + 10, // top right
+                       tbw -  25    , tbt + tbh - 10, //center
+                       ttc);
+    }
+
   }
-
   else {
-    d->setCursor(tbl + tox, tbt + toy);
-    d->fillRect(tbl, tbt, tbw, tbh, tfc);
-    d->setTextColor(ttc);
-    d->print(ttx);
+    if (hl) {
+      // draw new menu bar
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, ihbc);
+      d->setTextColor(ihtc);
+      d->print(etx);
+
+      d->fillTriangle( tbw - (tbh / 3.0) - 5, tbt + (tbh / 2.0) - 3,
+                       tbw - (tbh / 6.0) - 5, tbt + (tbh / 2.0) - (tbh / 3.0),
+                       tbw - 5,       tbt + (tbh / 2.0) - 3,
+                       ihtc);
+
+      d->fillTriangle( tbw - (tbh / 3.0) - 5, tbt + (tbh / 2.0) + 3,
+                       tbw - (tbh / 6.0) - 5, tbt + (tbh / 2.0) + (tbh / 3.0),
+                       tbw - 5,       tbt + (tbh / 2.0) + 3,
+                       ihtc);
+    }
+
+    else {
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, tfc);
+      d->setTextColor(ttc);
+      d->print(ttx);
+    }
   }
-
-
-
 
 }
 
+
+
+int ItemMenu::press(int16_t ScreenX, int16_t ScreenY) {
+
+  int bs;
+
+  // check if header pressed
+  if (  (ScreenX > tbl) && (ScreenX < (tbw + tbl))  &&  (ScreenY > tbt ) && (ScreenY < (tbt + tbh) )) {
+
+    if (ScreenX < (tbl + 25 + 15)) {
+      // up arrow
+      if (cr == 1) {
+        cr = imr;
+        //sr++;
+      }
+
+      MoveDown();
+      return -1;
+    }
+
+    if (ScreenX > (tbw - 25 - 15)) {
+      // down arrow
+      if (cr <= imr) {
+        cr = 0;
+        //currentID = sr;
+      }
+      MoveUp();
+      return -1;
+    }
+
+    return 0;
+  }
+
+  for (i = 1; i <= imr; i++) {
+    bs = icox + bmp_w[i + sr] + isx;
+    itx = bs + iox;
+
+    if (
+      (ScreenX > bs) &&
+      (ScreenY > (isy + (irh * (i - 1)))) &&
+      (ScreenX < (irw)) &&
+      (ScreenY < (isy + irh + (irh * (i - 1))))
+    ) {
+      return i + sr;
+    }
+  }
+  return -1;
+}
+
+void ItemMenu::drawRow(int ID, uint8_t style) {
+
+  int  bs;
+  int hr = ID - sr;
+
+  if (ID == 0) {
+    drawHeader(false, style);
+  }
+
+  if ((!enabletouch) || (ID <= 0)) {
+    return;
+  }
+
+  bs = icox + bmp_w[hr] + isx;
+
+  if (!enablestate[hr]) {
+    return;
+  }
+
+  if (ID == 0) {
+    if (style == BUTTON_PRESSED) {
+      // draw new menu bar
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, ihbc);
+      d->setTextColor(ttc);
+      d->print(ttx);
+    }
+    else {
+      // draw new menu bar
+      d->setCursor(tbl + tox, tbt + toy);
+      d->fillRect(tbl, tbt, tbw, tbh, tfc);
+      d->setTextColor(ttc);
+      d->print(ttx);
+    }
+  }
+  else {
+
+
+    if (style == BUTTON_PRESSED) {
+
+      if (radius > 0) {
+        d->fillRoundRect(bs,      isy - irh + (irh * hr) ,     irw - bs,       irh,        radius,   bcolor);
+        d->fillRoundRect(bs + thick,  isy - irh + (irh * hr) + thick,  irw - bs - (2 * thick),  irh - (2 * thick),  radius,   ihbc);
+      }
+      else {
+        d->fillRect(bs,       isy - irh + (irh * hr) ,     irw - bs  ,        irh, bcolor);
+        d->fillRect(bs + thick ,  isy - irh + (irh * hr) + thick,  irw - bs - (2 * thick) , irh - (2 * thick), ihbc);
+      }
+
+    }
+    else {
+
+      d->fillRect(bs, isy - irh + (irh * hr) , irw - bs, irh, ibc); // back color
+
+    }
+
+    // write text
+    itx = bs + iox;
+    d->setFont(itemf);
+    d->setTextColor(ihtc);
+    d->setCursor(itx , isy - irh + (irh * hr) + ioy);
+    d->print(itemlabel[ID]);
+
+  }
+
+}
+
+
 void ItemMenu::draw() {
-  drawHeader(false);
+  drawHeader(false, 0);
 
   drawItems();
 }
 
-
 void ItemMenu::drawItems() {
-int  bs;
+
+  int  bs;
 
   if (imr > totalID) {
     imr = totalID;
   }
   redraw = false;
-
   // determine if we need to pan or just increment the list
+
   if ((currentID >  totalID) && (sr >= 0) ) {
     // up to top
     cr = 0;
@@ -893,7 +1242,6 @@ int  bs;
     sr = 0;
     redraw = true;
   }
-
   else if ( (cr < 0) && (sr == 0) ) {
     //  pan whole menu to bottom
     cr = imr;
@@ -935,25 +1283,21 @@ int  bs;
 
   // determine if we need to redraw the header and draw
   if ((currentID == 0) && (cr == 0)) {
-    drawHeader(true);
+    drawHeader(true, 0);
   }
   else if ((pr == 0) && (cr > 0)) {
-    drawHeader(false);
+    drawHeader(false, 0);
   }
 
   d->setFont(itemf);
 
   // now draw the items in the rows
   for (i = 1; i <= imr; i++) {
+    // menu bar start
+    bs = icox + bmp_w[i + sr] + isx;
 
-
-	// icon start 
-	// icox;
-	// menu bar start 
-	bs = icox + bmp_w[i + sr] + isx;
-
-	// text start
-	itx = bs + iox;
+    // text start
+    itx = bs + iox;
 
     if (enablestate[i + sr]) {
       temptColor = itc;
@@ -964,52 +1308,52 @@ int  bs;
 
     if (redraw) {
       // scroll so blank out every row including icon since row will get scrolled
-      d->fillRect(bs, isy + (irh * i), irw - bs, irh, ibc); // back color
+      d->fillRect(bs, isy - irh + (irh * i), irw - bs, irh, ibc); // back color
     }
 
     if (i == pr) {
       // maybe just row change so blank previous
-      d->fillRect(bs, isy + (irh * pr) , irw - bs, irh, ibc); // back color
+      d->fillRect(bs, isy - irh + (irh * pr) , irw - bs, irh, ibc); // back color
     }
 
-    if (i == cr) {
+    if ((i == cr) && (!enabletouch)) {
 
-		if (radius > 0){
-			d->fillRoundRect(bs,			isy + (irh * i) ,			irw - bs,				irh,				radius,		bcolor);
-			d->fillRoundRect(bs + thick,	isy + (irh * i) + thick,	irw -bs - (2*thick),	irh - (2*thick),	radius,		ihbc);
-		}
-		else {
-			d->fillRect(bs,				isy + (irh * i) ,			irw -bs  ,				irh, bcolor);
-			d->fillRect(bs + thick ,	isy + (irh * i) + thick,	irw -bs - (2*thick) ,	irh - (2*thick), ihbc);
-		}
+      if (radius > 0) {
+        d->fillRoundRect(bs,      isy - irh + (irh * i) ,      irw - bs,       irh,        radius,   bcolor);
+        d->fillRoundRect(bs + thick,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick),  irh - (2 * thick),  radius,   ihbc);
+      }
+      else {
+        d->fillRect(bs,       isy - irh + (irh * i) ,      irw - bs  ,        irh, bcolor);
+        d->fillRect(bs + thick ,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick) , irh - (2 * thick), ihbc);
+      }
 
 
       if (moreup) {
-        d->fillTriangle(irw - 8 - thick,							isy + (irh * i) + irh - (irh / TRIANGLE_H),
-                        irw - ((irh / TRIANGLE_W)*.5) - 8- thick,	isy + (irh * i) + (irh / TRIANGLE_H),
-                        irw - (irh / TRIANGLE_W) - 8- thick,		isy + (irh * i) + irh - (irh / TRIANGLE_H), ihtc);
+        d->fillTriangle(irw - 8 - thick,              isy - irh + (irh * i) + irh - (irh / TRIANGLE_H),
+                        irw - ((irh / TRIANGLE_W)*.5) - 8 - thick, isy - irh + (irh * i) + (irh / TRIANGLE_H),
+                        irw - (irh / TRIANGLE_W) - 8 - thick,    isy - irh + (irh * i) + irh - (irh / TRIANGLE_H), ihtc);
       }
       if (moredown) {
-        d->fillTriangle(irw - 8- thick,    							isy + (irh * i) + (irh / TRIANGLE_H),
-                        irw - ((irh / TRIANGLE_W)*.5) - 8- thick,	isy + (irh * i) + irh - (irh / TRIANGLE_H),
-                        irw - (irh / TRIANGLE_W) - 8- thick,		isy + (irh * i) + (irh / TRIANGLE_H),     ihtc);
+        d->fillTriangle(irw - 8 - thick,                 isy - irh + (irh * i) + (irh / TRIANGLE_H),
+                        irw - ((irh / TRIANGLE_W)*.5) - 8 - thick, isy - irh + (irh * i) + irh - (irh / TRIANGLE_H),
+                        irw - (irh / TRIANGLE_W) - 8 - thick,    isy - irh + (irh * i) + (irh / TRIANGLE_H),     ihtc);
       }
-	  temptColor = ihtc;
+      temptColor = ihtc;
 
     }
 
     // write bitmap
 
     if (IconType[i + sr] == ICON_MONO) {
-      drawMonoBitmap(icox,  icoy + isy + (irh * i), itemBitmap[i + sr], bmp_w[i + sr], bmp_h[i + sr], itc );
+      drawMonoBitmap(icox,  icoy + isy - irh + (irh * i), itemBitmap[i + sr], bmp_w[i + sr], bmp_h[i + sr], itc );
     }
     else if (IconType[i + sr] == ICON_565) {
-      draw565Bitmap(icox,  icoy + isy + (irh * i), item565Bitmap[i + sr], bmp_w[i + sr], bmp_h[i + sr] );
+      draw565Bitmap(icox,  icoy + isy - irh + (irh * i), item565Bitmap[i + sr], bmp_w[i + sr], bmp_h[i + sr] );
     }
 
     // write text
     d->setTextColor(temptColor);
-    d->setCursor(itx , isy + (irh * i) + ioy);
+    d->setCursor(itx , isy - irh + (irh * i) + ioy);
     d->print(itemlabel[i + sr]);
   }
 
@@ -1020,9 +1364,13 @@ int  bs;
 }
 
 void ItemMenu::MoveUp() {
+
   cr--;
+
   currentID--;
+
   drawItems();
+
   if (enablestate[currentID] == false) {
     while (enablestate[currentID] == false) {
       cr--;
@@ -1085,20 +1433,35 @@ void ItemMenu::setMenuBarMargins(uint16_t LeftMargin, uint16_t Width, byte Borde
   isx = LeftMargin;  // pixels to offset text in menu bar
   irw = Width - isx;  // pixels to offset text in menu bar
   radius = BorderRadius;
-  thick = BorderThickness; 
+  thick = BorderThickness;
 
 }
 
-void ItemMenu::setItemColors(uint16_t DisableTextColor, uint16_t BorderColor){
-   ditc = DisableTextColor;
-   bcolor = BorderColor;
+void ItemMenu::setItemColors(uint16_t DisableTextColor, uint16_t BorderColor) {
+  ditc = DisableTextColor;
+  bcolor = BorderColor;
 }
+
+
+void ItemMenu::SetAllColors(uint16_t TextColor, uint16_t BackgroundColor, uint16_t HighlightTextColor, uint16_t HighlightColor, 
+		uint16_t HighLightBorderColor, uint16_t DisableTextColor, uint16_t TitleTextColor, uint16_t TitleFillColor) {
+
+	itc = TextColor;
+	ibc = BackgroundColor;
+	ihtc = HighlightTextColor;
+	ihbc = HighlightColor;
+	bcolor = HighLightBorderColor;
+	ttc = TitleTextColor;
+	tfc = TitleFillColor;
+	ditc = DisableTextColor;
+	
+	}
 
 void ItemMenu::setItemTextMargins(uint16_t LeftMargin, uint16_t TopMargin, uint16_t MenuMargin) {
   iox = LeftMargin;  // pixels to offset text in menu bar
   ioy = TopMargin;  // pixels to offset text in menu bar
-  mm = MenuMargin; 
-  isy = tbt + tbh - irh + mm;
+  mm = MenuMargin;
+  isy = tbt + tbh + mm;
 }
 
 void ItemMenu::setIconMargins(uint16_t IconOffsetX, uint16_t IconOffsetY) {
@@ -1151,3 +1514,7 @@ void ItemMenu::draw565Bitmap(int16_t x, int16_t y, const uint16_t *bitmap, uint8
   }
 
 }
+
+/////////////////////////////////
+// end of this menu library
+/////////////////////////////////

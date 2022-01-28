@@ -23,7 +23,7 @@
 
 	rev		date			author				change
 	1.0		1/2022			kasprzak			initial code
-
+	2.0   1/2022      kasprzak      added touch support
 
 	// Website for generating icons
 	// https://javl.github.io/image2cpp/
@@ -58,11 +58,14 @@
 #define ICON_MONO 1
 #define ICON_565  2
 
+#define  BUTTON_PRESSED 1
+#define  BUTTON_NOTPRESSED 0
+
 class  EditMenu {
 		
 public:
 
-	EditMenu(ILI9341_t3 *Display);
+	EditMenu(ILI9341_t3 *Display,bool EnableTouch = false);
 
 	void init(uint16_t TextColor, uint16_t BackgroundColor, 
 		uint16_t HighlightTextColor, uint16_t HighlightColor,
@@ -90,17 +93,31 @@ public:
 	void MoveDown();
 
 	void setTitleColors(uint16_t TitleTextColor, uint16_t TitleFillColor);
+
 	void setTitleBarSize(uint16_t TitleTop, uint16_t TitleLeft, uint16_t TitleWith, uint16_t TitleHeight);
+
 	void setTitleText( char *TitleText,  char *ExitText);
+
 	void setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin);
 
+	void setIncrementDelay(uint16_t Delay);
+	
 	void setMenuBarMargins(uint16_t LeftMargin, uint16_t Width, uint16_t BorderRadius, uint16_t BorderThickness);
 
-	void setItemColors( uint16_t DisableTextColor, uint16_t BorderColor);
+	void setItemColors( uint16_t DisableTextColor, uint16_t BorderColor, uint16_t EditModeBorderColor = 0);
+
 	void setItemTextMargins(uint16_t LeftMargin, uint16_t TopMargin, uint16_t MenuMargin);
+
 	void setItemText(int ItemID, const char *ItemText);
+
 	void setIconMargins(uint16_t LeftMargin, uint16_t TopMargin);
+
 	void SetItemValue(int ItemID, float ItemValue);
+
+	void SetAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
+							uint16_t HighlightTextColor, uint16_t HighlightColor, uint16_t HighlightBorderColor,
+							uint16_t SelectedTextColor, uint16_t SelectedColor, uint16_t SelectBorderColor,
+							uint16_t DisableTextColor ,	uint16_t TitleTextColor, uint16_t TitleFillColor);
 
 	void disable(int ID);
 
@@ -108,8 +125,9 @@ public:
 
 	bool getEnableState(int ID);
 	
+	int press(int16_t ScreenX, int16_t ScreenY);
 
-	void drawRow(int itemID);
+	void drawRow(int ID);
 		
 	float value[MAX_OPT];
 
@@ -117,7 +135,7 @@ public:
 
 private:
 
-	void drawHeader(bool hl);
+	void drawHeader(bool hl, uint8_t Style);
 
 	void up();
 
@@ -164,7 +182,7 @@ private:
 	bool drawTitleFlag = true;
 	bool redraw = false;
 	uint16_t ditc = 0;
-	uint16_t temptColor = 0, bcolor;
+	uint16_t temptColor = 0, bcolor, sbcolor;
 	const unsigned char	*itemBitmap[MAX_OPT];
 	const uint16_t *item565Bitmap[MAX_OPT];
 	uint8_t bmp_w[MAX_OPT];
@@ -172,6 +190,8 @@ private:
 	byte IconType[MAX_OPT];
 	uint16_t  radius = 0;
 	uint16_t thick = 0;
+	uint16_t incdelay = 50;
+	bool enabletouch, redrawh;
 
 };
 
@@ -180,7 +200,7 @@ class  ItemMenu {
 
 	
 public:
-	ItemMenu(ILI9341_t3 *Display);
+	ItemMenu(ILI9341_t3 *Display, bool EnableTouch = false);
 	
 	void init(uint16_t TextColor, uint16_t BackgroundColor,
 		uint16_t HighlightTextColor, uint16_t HighlightColor, 
@@ -202,16 +222,25 @@ public:
 	int selectRow();
 
 	void setTitleColors(uint16_t TitleTextColor, uint16_t TitleFillColor);
+
 	void setTitleBarSize(uint16_t TitleTop, uint16_t TitleLeft, uint16_t TitleWith, uint16_t TitleHeight);
+
 	void setTitleText( char *TitleText,  char *ExitText);
+
 	void setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin);
 
 	void setMenuBarMargins(uint16_t LeftMargin, uint16_t Width, byte BorderRadius, byte BorderThickness);
 
 	void setItemColors( uint16_t DisableTextColor, uint16_t BorderColor);
+
 	void setItemTextMargins(uint16_t LeftMargin, uint16_t TopMargin, uint16_t MenuMargin);
+
 	void setItemText(int ItemID, const char *ItemText);
+
 	void setIconMargins(uint16_t LeftMargin, uint16_t TopMargin);
+
+	void SetAllColors(uint16_t TextColor, uint16_t BackgroundColor, uint16_t HighlightTextColor, uint16_t HighlightColor, 
+		uint16_t HighLightBorderColor, uint16_t DisableTextColor, uint16_t TitleTextColor, uint16_t TitleFillColor);
 
 	void disable(int ID);
 
@@ -219,7 +248,9 @@ public:
 
 	bool getEnableState(int ID);
 
+	int press(int16_t ScreenX, int16_t ScreenY);
 
+	void drawRow(int ID, uint8_t style);
 
 	float value[MAX_OPT];
 
@@ -227,7 +258,7 @@ public:
 
 private:
 
-	void drawHeader(bool hl);
+	void drawHeader(bool hl, uint8_t style);
 
 	void drawItems();
 	
@@ -236,6 +267,7 @@ private:
 	void draw565Bitmap(int16_t x, int16_t y, const uint16_t *Bitmap , uint8_t w, uint8_t h);
 
 	ILI9341_t3 *d;
+	bool enabletouch;
 	char itemlabel[MAX_OPT][MAX_CHAR_LEN];
 	char ttx[MAX_CHAR_LEN];
 	char etx[MAX_CHAR_LEN];
@@ -262,7 +294,6 @@ private:
 	uint8_t bmp_h[MAX_OPT];
 	byte IconType[MAX_OPT];
 	byte radius, thick;
-
 
 };
 
