@@ -33,9 +33,9 @@ This library includes two menu objects:
   <li>Menu selector bars can have round or sharp corners and have a border to accentuate selection</li>
   <li>Automatic up/down arrows on top and bottom screen rows to indicate to the user "there's more"</li>
 </ul> 
-  <br>
-  <br>
-While this library was created for either the ILI9341_t3 and intended for Teensy-based MCU's or Adafruit_ILI9341 dricers, the library can be adapted to other display drivers. Note the driver must use the Adafruit_GFX libraries. To allow other display drivers, modify the lines in the .h and .cpp files to allow a different driver to be passed in. For example change call such as SliderH(ILI9341_t3 *disp,... to SliderH(Adafruit_RA8875 *disp,... and in the .cpp files you may have to change how fonts are set setFont(&SomeFont)
+<br>
+<br>
+While this library was created for the ILI9341_t3 drivers with Teensy-based MCU's, the library can be adapted to other display drivers. Note the driver must use the Adafruit_GFX libraries. To allow other display drivers, modify the lines in the .h and .cpp files to allow a different driver to be passed in. For example change call such as SliderH(ILI9341_t3 *disp,... to SliderH(Adafruit_RA8875 *disp,... and in the .cpp files you may have to change how fonts are passed in using either setFont(&SomeFont) or setFont(SomeFont)
 <br>
 <br>
 
