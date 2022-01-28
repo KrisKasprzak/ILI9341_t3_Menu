@@ -19,6 +19,20 @@ This library includes two menu objects:
 <br>
 <b>Watch this YouTube video to see the library with mechanical input:</b> https://youtu.be/KUi9f4hcV6A
 
+<br>
+To activate touch usage specify true in the menu object creation step
+<ul>
+  <li>EditMenu(ILI9341_t3 *YourDisplayObject, true);</li>
+  <li>ItemMenu(ILI9341_t3 *YourDisplayObject, true);</li>
+</ul> 
+<br>
+To activate mechanical input usage specify false (default) in the menu object creation step
+<ul>
+  <li>EditMenu(ILI9341_t3 *YourDisplayObject, false);</li>
+  <li>ItemMenu(ILI9341_t3 *YourDisplayObject, false);</li>
+</ul> 
+<br>
+<br>
  <b>Library highlights</b>
   <ul>
   <li>Menu control with touch screens</li> 
