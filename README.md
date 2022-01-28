@@ -15,7 +15,8 @@ This library includes two menu objects:
   however the difference is that move/up down on a selected item will then scroll the values stored with that
   menu item, selecting a selected item will restore control to moving up/down the menu list
 
-<b>Watch this YouTube video:</b> https://youtu.be/KUi9f4hcV6A
+<b>Watch this YouTube video to see the library with touch input:</b> COMING SOON!
+<b>Watch this YouTube video to see the library with mechanical input:</b> https://youtu.be/KUi9f4hcV6A
 
  <b>Library highlights</b>
   <ul>
