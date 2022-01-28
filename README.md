@@ -1,7 +1,8 @@
 <b><h2><center>Version 1.0 updated 1/11/2021</center></h1></b>
 1. Initial library posting
+2. Added support for Touch
 
-<b><h2><center>Menu System for ILI9341_t3 displays (Teensy) and mechanical input buttons</center></h1></b>
+<b><h2><center>Menu System for ILI9341_t3 displays (Teensy) with touch or mechanical input</center></h1></b>
 
 This library will simplify creating and implementing a menu system for TFT displays that use the ILI9341_t3 library and Teensy(R) microcontrollers. See my other repository for the AdaFruit_ILI8341 library for prjects that use that driver and an MCU such as and ESP32
 This library includes two menu objects
@@ -17,6 +18,8 @@ This library includes two menu objects
 
  <b>Library highlights</b>
   <ul>
+  <li>Menu control with touch screens</li> 
+  <li>Menu control with mechanical input such as rotary encoders or buttons</li> 
   <li>Automatic wrapping for menu rows that exceed screen size</li> 
   <li>For EditMenu objects, edits can be within a defined range or from an array</li> 
   <li>Menus can include no icon, mono icon, or color icons</li> 
@@ -58,4 +61,5 @@ I have included an example that shows how to create multi-menu system with both 
 <b><h2><center>Revision history</center></h1></b>
 <br>
 1.0		1/11/22   initial code<br>
+2.0		1/28/22   added touch support<br>
 
