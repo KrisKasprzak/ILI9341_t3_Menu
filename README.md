@@ -16,6 +16,7 @@ This library includes two menu objects:
   menu item, selecting a selected item will restore control to moving up/down the menu list
 
 <b>Watch this YouTube video to see the library with touch input:</b> COMING SOON!
+<br>
 <b>Watch this YouTube video to see the library with mechanical input:</b> https://youtu.be/KUi9f4hcV6A
 
  <b>Library highlights</b>
