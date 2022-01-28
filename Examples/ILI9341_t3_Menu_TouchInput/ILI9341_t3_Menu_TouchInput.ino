@@ -2285,9 +2285,13 @@ int ProcessButtonPress(EditMenu &TheMenu) {
   void setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin);
   void setIncrementDelay(uint16_t Delay);
   void setMenuBarMargins(uint16_t LeftMargin, uint16_t Width, uint16_t BorderRadius, uint16_t BorderThickness);
-  void setItemColors( uint16_t DisableTextColor, uint16_t BorderColor);
+  void setItemColors( uint16_t DisableTextColor, uint16_t BorderColor, uint16_t EditModeBorderColor = 0);
   void setItemTextMargins(uint16_t LeftMargin, uint16_t TopMargin, uint16_t MenuMargin);
   void setItemText(int ItemID, const char *ItemText);
+  void SetAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
+							uint16_t HighlightTextColor, uint16_t HighlightColor, uint16_t HighlightBorderColor,
+							uint16_t SelectedTextColor, uint16_t SelectedColor, uint16_t SelectBorderColor,
+							uint16_t DisableTextColor ,	uint16_t TitleTextColor, uint16_t TitleFillColor);
   void setIconMargins(uint16_t LeftMargin, uint16_t TopMargin);
   void SetItemValue(int ItemID, float ItemValue);
   void disable(int ID);
