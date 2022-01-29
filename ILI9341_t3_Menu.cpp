@@ -1147,6 +1147,10 @@ int ItemMenu::press(int16_t ScreenX, int16_t ScreenY) {
       (ScreenX < (irw)) &&
       (ScreenY < (isy + irh + (irh * (i - 1))))
     ) {
+    if (!enablestate[i + sr]) {
+      return -1;
+    }
+	    
       return i + sr;
     }
   }
