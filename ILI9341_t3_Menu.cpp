@@ -1414,7 +1414,7 @@ void ItemMenu::MoveDown() {
 
 int ItemMenu::selectRow() {
   if (currentID == 0) {
-    cr = 1;
+    cr = 0;
     sr = 0;
   }
   item = currentID;
