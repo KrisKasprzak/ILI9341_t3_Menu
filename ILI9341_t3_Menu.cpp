@@ -372,8 +372,11 @@ void EditMenu::MoveDown() {
 
 
 void EditMenu::draw() {
-  drawHeader(false, 0);
-  drawItems();
+	// default to the first row
+	// no provivisons for if it's disabled.
+	currentID = 1;
+	drawHeader(false, 0);
+	drawItems();
 }
 
 void EditMenu::drawItems() {
@@ -1232,6 +1235,13 @@ void ItemMenu::drawRow(int ID, uint8_t style) {
 
 
 void ItemMenu::draw() {
+	
+		// default to the first row
+	// no provivisons for if it's disabled.
+	currentID = 1;
+	drawHeader(false, 0);
+	drawItems();
+	
   drawHeader(false, 0);
 
   drawItems();
