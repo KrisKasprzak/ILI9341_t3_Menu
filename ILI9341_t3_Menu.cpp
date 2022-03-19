@@ -594,7 +594,7 @@ void EditMenu::drawRow(int ID) {
         // case 1 draw som is draw row AND highlighted
         textcolor = ihtc;
         backcolor = ihbc;
-	sbackcolor = ibc;
+	sbackcolor = bcolor;
         drawarrow = true;
 
       }
@@ -602,7 +602,7 @@ void EditMenu::drawRow(int ID) {
         // case 2 = current row is draw row AND highlighted
         textcolor = istc;
         backcolor = isbc;
-	sbackcolor = bcolor;
+	sbackcolor = ibc;
         drawarrow = false;
 
       }
