@@ -1731,10 +1731,10 @@ void setup() {
   // again all these calls are optional, but you most likely will want to set margins
 
   // optional but you can store a setting such as a calibration value in EEPROM, read at startup
-  // and populate with SetItemValue(), even though the item data was set in the add method, you can change it later
-  // SetItemValue(ItemID, ItemValue){
-  OptionMenu.SetItemValue(OptionOption1, 0.12);
-  OptionMenu.SetItemValue(OptionOption3, 1); // the 2nd element in the ReadoutItems array
+  // and populate with setItemValue(), even though the item data was set in the add method, you can change it later
+  // setItemValue(ItemID, ItemValue){
+  OptionMenu.setItemValue(OptionOption1, 0.12);
+  OptionMenu.setItemValue(OptionOption3, 1); // the 2nd element in the ReadoutItems array
 
   // optional but can can set the title colors
   // setTitleColors(TitleTextColor, TitleFillColor);
@@ -2052,7 +2052,7 @@ void ProcessColorMenu() {
 
   // set Option menu colors
 
-  MainMenu.SetAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
+  MainMenu.setAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
                         C_VALUES[ (int) ColorMenu.value[ColorOption2]],
                         C_VALUES[ (int) ColorMenu.value[ColorOption3]],
                         C_VALUES[ (int) ColorMenu.value[ColorOption4]],
@@ -2061,7 +2061,7 @@ void ProcessColorMenu() {
                         C_VALUES[ (int) ColorMenu.value[ColorOption10]],
                         C_VALUES[ (int) ColorMenu.value[ColorOption11]]);
 
-  OptionMenu.SetAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
+  OptionMenu.setAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
                           C_VALUES[ (int) ColorMenu.value[ColorOption2]],
                           C_VALUES[ (int) ColorMenu.value[ColorOption3]],
                           C_VALUES[ (int) ColorMenu.value[ColorOption4]],
@@ -2073,7 +2073,7 @@ void ProcessColorMenu() {
                           C_VALUES[ (int) ColorMenu.value[ColorOption10]],
                           C_VALUES[ (int) ColorMenu.value[ColorOption11]]);
 
-  ColorMenu.SetAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
+  ColorMenu.setAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
                          C_VALUES[ (int) ColorMenu.value[ColorOption2]],
                          C_VALUES[ (int) ColorMenu.value[ColorOption3]],
                          C_VALUES[ (int) ColorMenu.value[ColorOption4]],
@@ -2085,7 +2085,7 @@ void ProcessColorMenu() {
                          C_VALUES[ (int) ColorMenu.value[ColorOption10]],
                          C_VALUES[ (int) ColorMenu.value[ColorOption11]]);
 
-  WirelessMenu.SetAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
+  WirelessMenu.setAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
                             C_VALUES[ (int) ColorMenu.value[ColorOption2]],
                             C_VALUES[ (int) ColorMenu.value[ColorOption3]],
                             C_VALUES[ (int) ColorMenu.value[ColorOption4]],
