@@ -1,6 +1,7 @@
-<b><h2><center>Version 1.0 updated 1/11/2021</center></h1></b>
+<b><h2><center>Version 1.0 updated 7/7/2022</center></h1></b>
 1. Initial library posting
 2. Added support for Touch
+3. added example for 3-button input (UP/DOWN/ENTER)
 
 <b><h2><center>Menu System for ILI9341_t3 displays (Teensy) with touch or mechanical input</center></h1></b>
 
