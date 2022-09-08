@@ -1329,7 +1329,7 @@ void ItemMenu::drawItems() {
 
     if (redraw) {
       // scroll so blank out every row including icon since row will get scrolled
-      d->fillRect(bs, isy - irh + (irh * i), irw - bs, irh, ibc); // back color
+      d->fillRect(icox, isy - irh + (irh * i), irw, irh, ibc); // back color
     }
 
     if (i == pr) {
