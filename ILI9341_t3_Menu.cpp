@@ -464,7 +464,10 @@ void EditMenu::drawItems() {
 
     if (redraw) {
       // scroll so blank out every row including icon since row will get scrolled
-      d->fillRect(bs, isy - irh + (irh * i), irw - bs, irh, ibc); // back color
+      // d->fillRect(bs, isy - irh + (irh * i), irw - bs, irh, ibc); // back color
+	    
+      // issue #1 blurred icons caused when menu needs to cycle AND there are icons
+      d->fillRect(icox, isy - irh + (irh * i), irw , irh, ibc); // back color	    
     }
 
     if (i == pr) {
