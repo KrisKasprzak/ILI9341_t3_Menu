@@ -6,7 +6,8 @@
 
 <b><h2><center>Menu System for ILI9341_t3 displays (Teensy) with touch or mechanical input</center></h1></b>
 
-This library will simplify creating and implementing a menu system for TFT displays that use the ILI9341_t3 library and Teensy(R) microcontrollers. See my other repository for the AdaFruit_ILI8341 library for prjects that use that driver and an MCU such as and ESP32.
+This library will simplify creating and implementing a menu system for TFT displays that use the ILI9341_t3 library and Teensy(R) microcontrollers. 
+See my other repository for the AdaFruit_ILI9341 library for prjects that use that driver and an MCU such as and ESP32.
 <br>
 This library includes two menu objects:
 <br>
@@ -24,14 +25,14 @@ This library includes two menu objects:
 <br>
 To activate touch usage specify true in the menu object creation step
 <ul>
-  <li>EditMenu(ILI9341_t3 *YourDisplayObject, true);</li>
-  <li>ItemMenu(ILI9341_t3 *YourDisplayObject, true);</li>
+  <li>EditMenu(&YourDisplayObject, true);</li>
+  <li>ItemMenu(&YourDisplayObject, true);</li>
 </ul> 
 <br>
 To activate mechanical input usage specify false (default) in the menu object creation step
 <ul>
-  <li>EditMenu(ILI9341_t3 *YourDisplayObject, false);</li>
-  <li>ItemMenu(ILI9341_t3 *YourDisplayObject, false);</li>
+  <li>EditMenu(&YourDisplayObject, false);</li>
+  <li>ItemMenu(&YourDisplayObject, false);</li>
 </ul> 
 <br>
 <br>
