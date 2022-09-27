@@ -23,13 +23,13 @@ This library includes two menu objects:
 <b>Watch this YouTube video to see the library with mechanical input:</b> https://youtu.be/KUi9f4hcV6A
 
 <br>
-To activate touch usage specify true in the menu object creation step
+To activate <b>touch input</b> usage specify true in the menu object creation step
 <ul>
   <li>EditMenu(&YourDisplayObject, true);</li>
   <li>ItemMenu(&YourDisplayObject, true);</li>
 </ul> 
 <br>
-To activate mechanical input usage specify false (default) in the menu object creation step
+To activate <b>mechanical input</b> usage specify false (default) in the menu object creation step
 <ul>
   <li>EditMenu(&YourDisplayObject, false);</li>
   <li>ItemMenu(&YourDisplayObject, false);</li>
