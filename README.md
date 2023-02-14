@@ -1,9 +1,10 @@
 <b><h2><center>Version 3.0 updated 2/14/2023</center></h1></b>
 1. This library now supports use of mechanical and touch. You can press a menu item to edit, the scroll through values with an encoder.
-
+<br>
 <b><h2><center>Menu System for ILI9341_t3 displays (Teensy) with touch or mechanical input</center></h1></b>
 
 This library will simplify creating and implementing a menu system for TFT displays that use the ILI9341_t3 library and Teensy(R) microcontrollers. 
+<br>
 See my other repository for the AdaFruit_ILI9341 library for prjects that use that driver and an MCU such as and ESP32.
 <br>
 This library includes two menu objects:
