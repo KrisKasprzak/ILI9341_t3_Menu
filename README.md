@@ -31,8 +31,7 @@ To activate <b>touch input</b> or <b>mechanical input</b> just pass the in the d
 <br>
  <b>Library highlights</b>
   <ul>
-  <li>Menu control with touch screens</li> 
-  <li>Menu control with mechanical input such as rotary encoders or buttons</li> 
+  <li>Menu control with touch screens and mechanical input such as rotary encoders or buttons</li> 
   <li>Automatic wrapping for menu rows that exceed screen size</li> 
   <li>For EditMenu objects, edits can be within a defined range or from an array</li> 
   <li>Menus can include no icon, mono icon, or color icons</li> 
