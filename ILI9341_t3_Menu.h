@@ -34,7 +34,7 @@
 #ifndef ILI9341_MENU_H
 #define ILI9341_MENU_H
 
-#define ILI9341_MENU_VER 2.0
+#define ILI9341_MENU_VER 3.0
 
 #if ARDUINO >= 100
 	 #include "Arduino.h"
