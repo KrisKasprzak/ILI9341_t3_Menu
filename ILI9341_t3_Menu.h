@@ -49,12 +49,15 @@
 
 #include <ILI9341_t3.h>  
 
+	
+
 #define MAX_OPT 15				// max elements in a menu, increase as needed
 #define MAX_CHAR_LEN 30			// max chars in menus, increase as needed
 #define TRIANGLE_H 3.7
 #define TRIANGLE_W 2.5
 #define MENU_C_DKGREY 0x4A49	// used for disable color, method to change
 #define EXIT_TEXT "Exit"		// default text for menu exit text, change here or use a method
+#define EDIT_TEXT "Edit"		// default text for menu exit text, change here or use a method
 
 #define ICON_NONE 0
 #define ICON_MONO 1
@@ -99,6 +102,8 @@ public:
 	void setTitleBarSize(uint16_t TitleTop, uint16_t TitleLeft, uint16_t TitleWith, uint16_t TitleHeight);
 
 	void setTitleText( char *TitleText,  char *ExitText);
+	
+	void setTitleText( char *TitleText,  char *ExitText,  char *EditText);
 
 	void setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin);
 
@@ -114,9 +119,9 @@ public:
 
 	void setIconMargins(uint16_t LeftMargin, uint16_t TopMargin);
 
-	void setItemValue(int ItemID, float ItemValue);
+	void SetItemValue(int ItemID, float ItemValue);
 
-	void setAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
+	void SetAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
 							uint16_t HighlightTextColor, uint16_t HighlightColor, uint16_t HighlightBorderColor,
 							uint16_t SelectedTextColor, uint16_t SelectedColor, uint16_t SelectBorderColor,
 							uint16_t DisableTextColor ,	uint16_t TitleTextColor, uint16_t TitleFillColor);
@@ -137,8 +142,8 @@ public:
 
 private:
 
-	void drawHeader(bool hl, uint8_t Style);
-
+	void drawHeader(bool ShowEdit);
+	
 	void up();
 
 	void down();
@@ -157,6 +162,7 @@ private:
 	char itemlabel[MAX_OPT][MAX_CHAR_LEN];
 	char ttx[MAX_CHAR_LEN];
 	char etx[MAX_CHAR_LEN]; 
+	char dtx[MAX_CHAR_LEN];
 	ILI9341_t3_font_t itemf;
 	ILI9341_t3_font_t titlef;
 	uint16_t itc, ibc, ihtc, ihbc, istc, isbc;	// item variables
@@ -170,14 +176,15 @@ private:
 	int cr;
 	byte debounce;
 	int sr, pr;
-	bool moreup = false, moredown = false;
 	uint16_t col;
 	float data[MAX_OPT];
 	float low[MAX_OPT];
 	float high[MAX_OPT];
 	float inc[MAX_OPT];
 	byte dec[MAX_OPT];
+	
 	char **itemtext[MAX_OPT];
+	
 	bool rowselected = false;
 	bool haslist[MAX_OPT];
 	bool enablestate[MAX_OPT];
@@ -193,8 +200,8 @@ private:
 	uint16_t  radius = 0;
 	uint16_t thick = 0;
 	uint16_t incdelay = 50;
-	bool enabletouch, redrawh;
-
+	bool InputFromTouch = false;
+	bool dh = true; 
 };
 
 
@@ -228,7 +235,9 @@ public:
 	void setTitleBarSize(uint16_t TitleTop, uint16_t TitleLeft, uint16_t TitleWith, uint16_t TitleHeight);
 
 	void setTitleText( char *TitleText,  char *ExitText);
-
+	
+	void setTitleText(char *TitleText, char *ExitText, char *EditText);
+	
 	void setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin);
 
 	void setMenuBarMargins(uint16_t LeftMargin, uint16_t Width, byte BorderRadius, byte BorderThickness);
@@ -241,7 +250,7 @@ public:
 
 	void setIconMargins(uint16_t LeftMargin, uint16_t TopMargin);
 
-	void setAllColors(uint16_t TextColor, uint16_t BackgroundColor, uint16_t HighlightTextColor, uint16_t HighlightColor, 
+	void SetAllColors(uint16_t TextColor, uint16_t BackgroundColor, uint16_t HighlightTextColor, uint16_t HighlightColor, 
 		uint16_t HighLightBorderColor, uint16_t DisableTextColor, uint16_t TitleTextColor, uint16_t TitleFillColor);
 
 	void disable(int ID);
@@ -260,7 +269,7 @@ public:
 
 private:
 
-	void drawHeader(bool hl, uint8_t style);
+	void drawHeader(bool ShowEdit);
 
 	void drawItems();
 	
@@ -269,10 +278,11 @@ private:
 	void draw565Bitmap(int16_t x, int16_t y, const uint16_t *Bitmap , uint8_t w, uint8_t h);
 
 	ILI9341_t3 *d;
-	bool enabletouch;
+	//bool enabletouch;
 	char itemlabel[MAX_OPT][MAX_CHAR_LEN];
 	char ttx[MAX_CHAR_LEN];
 	char etx[MAX_CHAR_LEN];
+	char dtx[MAX_CHAR_LEN];
 	ILI9341_t3_font_t itemf;
 	ILI9341_t3_font_t titlef;
 	uint16_t bkgr, isx, itx, isy, irh, itc, ibc, ihbc, ihtc, isc, imr, irw, ioy, iox;	// item variables
@@ -296,7 +306,9 @@ private:
 	uint8_t bmp_h[MAX_OPT];
 	byte IconType[MAX_OPT];
 	byte radius, thick;
-
+	bool InputFromTouch = false;
+	bool dh = true; // draw header
+	
 };
 
 
