@@ -1,8 +1,5 @@
-<b><h2><center>Version 1.0 updated 9/8/2022</center></h1></b>
-1. Initial library posting
-2. Added support for Touch
-3. added example for 3-button input (UP/DOWN/ENTER)
-4. fixed issue with icon drawing when menu count exceeds rows
+<b><h2><center>Version 3.0 updated 2/14/2023</center></h1></b>
+1. This library now supports use of mechanical and touch. You can press a menu item to edit, the scroll through values with an encoder.
 
 <b><h2><center>Menu System for ILI9341_t3 displays (Teensy) with touch or mechanical input</center></h1></b>
 
@@ -23,16 +20,10 @@ This library includes two menu objects:
 <b>Watch this YouTube video to see the library with mechanical input:</b> https://youtu.be/KUi9f4hcV6A
 
 <br>
-To activate <b>touch input</b> usage specify true in the menu object creation step
+To activate <b>touch input</b> or <b>mechanical input</b> just pass the in the display object
 <ul>
-  <li>EditMenu(&YourDisplayObject, true);</li>
-  <li>ItemMenu(&YourDisplayObject, true);</li>
-</ul> 
-<br>
-To activate <b>mechanical input</b> usage specify false (default) in the menu object creation step
-<ul>
-  <li>EditMenu(&YourDisplayObject, false);</li>
-  <li>ItemMenu(&YourDisplayObject, false);</li>
+  <li>EditMenu(&YourDisplayObject);</li>
+  <li>ItemMenu(&YourDisplayObject);</li>
 </ul> 
 <br>
 <br>
