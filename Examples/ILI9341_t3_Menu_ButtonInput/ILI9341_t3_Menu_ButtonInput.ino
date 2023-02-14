@@ -1564,12 +1564,14 @@ const unsigned char epd_bitmap_b_wireless [] PROGMEM = {
 ILI9341_t3 Display(CS_PIN, DC_PIN); //Display object
 
 // required, you must create either an Item menu (no inline editing) or an EditMenu (allows inline editing)
-//ClassName YourMenuName(&DisplayObject, True=Touch input, False(Default)=mechanical input);
+//ClassName YourMenuName(&DisplayObject, true/false);
+// the second arguement is no longer needed as v3.0 of this libray supports touch and mechanical at the same time
 ItemMenu MainMenu(&Display);
 
 // since we're showing both menu types, create an object for each where the item menu is the main and calls edit menus
 // you can have an item menu call other item menus an edit menu can call an edit menu but in a round about way--not recommended
-// ClassName YourMenuName(&DisplayObject, True=Touch input, False(Default)=mechanical input);
+// ClassName YourMenuName(&DisplayObject, true|false);
+// the second arguement is no longer needed as v3.0 of this libray supports touch and mechanical at the same time
 EditMenu OptionMenu(&Display); // default is false, need not specify
 EditMenu ColorMenu(&Display, false); // or you can still call false to force mechanical input selection
 EditMenu WirelessMenu(&Display);
