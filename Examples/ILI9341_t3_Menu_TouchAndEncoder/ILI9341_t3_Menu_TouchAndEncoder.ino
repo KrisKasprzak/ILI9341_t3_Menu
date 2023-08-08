@@ -1559,7 +1559,7 @@ const unsigned char epd_bitmap_b_wireless[] PROGMEM = {
 
 
 // you know the drill
-ILI9341_t3 Display(CS_PIN, DC_PIN, 240, 320, 8);  //Display object
+ILI9341_t3 Display(CS_PIN, DC_PIN, 8);  //Display object
 
 // required, you must create either an Item menu (no inline editing) or an EditMenu (allows inline editing)
 //ClassName YourMenuName(&DisplayObject, True=Touch input, False(Default)=mechanical input);
