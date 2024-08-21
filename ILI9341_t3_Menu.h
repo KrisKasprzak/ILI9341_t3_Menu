@@ -24,6 +24,7 @@
 	rev		date			author				change
 	1.0		1/2022			kasprzak			initial code
 	2.0   1/2022      kasprzak      added touch support
+ 	3.0   8/21/2024   kasprzak      fixed a nast bug if number of menu items = MAX_OPT in the .h
 
 	// Website for generating icons
 	// https://javl.github.io/image2cpp/
@@ -51,7 +52,7 @@
 
 	
 
-#define MAX_OPT 15				// max elements in a menu, increase as needed
+#define MAX_OPT+1 15				// max elements in a menu, increase as needed
 #define MAX_CHAR_LEN 30			// max chars in menus, increase as needed
 #define TRIANGLE_H 3.7
 #define TRIANGLE_W 2.5
@@ -136,7 +137,7 @@ public:
 
 	void drawRow(int ID);
 		
-	float value[MAX_OPT];
+	float value[MAX_OPT+1];
 
 	int item;
 
@@ -159,7 +160,7 @@ private:
 	void draw565Bitmap(int16_t x, int16_t y, const uint16_t *bitmap, uint8_t w, uint8_t h);
 	
 	ILI9341_t3 *d;
-	char itemlabel[MAX_OPT][MAX_CHAR_LEN];
+	char itemlabel[MAX_OPT+1][MAX_CHAR_LEN];
 	char ttx[MAX_CHAR_LEN];
 	char etx[MAX_CHAR_LEN]; 
 	char dtx[MAX_CHAR_LEN];
@@ -177,26 +178,26 @@ private:
 	byte debounce;
 	int sr, pr;
 	uint16_t col;
-	float data[MAX_OPT];
-	float low[MAX_OPT];
-	float high[MAX_OPT];
-	float inc[MAX_OPT];
-	byte dec[MAX_OPT];
+	float data[MAX_OPT+1];
+	float low[MAX_OPT+1];
+	float high[MAX_OPT+1];
+	float inc[MAX_OPT+1];
+	byte dec[MAX_OPT+1];
 	
-	char **itemtext[MAX_OPT];
+	char **itemtext[MAX_OPT+1];
 	
 	bool rowselected = false;
-	bool haslist[MAX_OPT];
-	bool enablestate[MAX_OPT];
+	bool haslist[MAX_OPT+1];
+	bool enablestate[MAX_OPT+1];
 	bool drawTitleFlag = true;
 	bool redraw = false;
 	uint16_t ditc = 0;
 	uint16_t temptColor = 0, bcolor, sbcolor;
-	const unsigned char	*itemBitmap[MAX_OPT];
-	const uint16_t *item565Bitmap[MAX_OPT];
-	uint8_t bmp_w[MAX_OPT];
-	uint8_t bmp_h[MAX_OPT];
-	byte IconType[MAX_OPT];
+	const unsigned char	*itemBitmap[MAX_OPT+1];
+	const uint16_t *item565Bitmap[MAX_OPT+1];
+	uint8_t bmp_w[MAX_OPT+1];
+	uint8_t bmp_h[MAX_OPT+1];
+	byte IconType[MAX_OPT+1];
 	uint16_t  radius = 0;
 	uint16_t thick = 0;
 	uint16_t incdelay = 50;
@@ -263,7 +264,7 @@ public:
 
 	void drawRow(int ID, uint8_t style);
 
-	float value[MAX_OPT];
+	float value[MAX_OPT+1];
 
 	int item;
 
@@ -279,7 +280,7 @@ private:
 
 	ILI9341_t3 *d;
 	//bool enabletouch;
-	char itemlabel[MAX_OPT][MAX_CHAR_LEN];
+	char itemlabel[MAX_OPT+1][MAX_CHAR_LEN];
 	char ttx[MAX_CHAR_LEN];
 	char etx[MAX_CHAR_LEN];
 	char dtx[MAX_CHAR_LEN];
@@ -296,15 +297,15 @@ private:
 	int cr;
 	byte debounce;
 	int sr, pr;
-	const unsigned char *itemBitmap[MAX_OPT];
-	const uint16_t *item565Bitmap[MAX_OPT];
+	const unsigned char *itemBitmap[MAX_OPT+1];
+	const uint16_t *item565Bitmap[MAX_OPT+1];
 	bool rowselected = false;
 	bool drawTitleFlag = true;
 	bool redraw = false;
-	bool enablestate[MAX_OPT];
-	uint8_t bmp_w[MAX_OPT];
-	uint8_t bmp_h[MAX_OPT];
-	byte IconType[MAX_OPT];
+	bool enablestate[MAX_OPT+1];
+	uint8_t bmp_w[MAX_OPT+1];
+	uint8_t bmp_h[MAX_OPT+1];
+	byte IconType[MAX_OPT+1];
 	byte radius, thick;
 	bool InputFromTouch = false;
 	bool dh = true; // draw header
