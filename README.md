@@ -1,7 +1,7 @@
 <b><h2><center>Latest fix</center></h1></b>
-
+<br>
 version 4.0   8/21/2024   kasprzak      fixed a nast bug if number of menu items = MAX_OPT in the .h (before fix MAX_OPT had to be 1 more than number of menu items
-
+<br>
 1. This library now supports use of mechanical and touch. You can press a menu item to edit, the scroll through values with an encoder.
 <br>
 <b><h2><center>Menu System for ILI9341_t3 displays (Teensy) with touch or mechanical input</center></h1></b>
