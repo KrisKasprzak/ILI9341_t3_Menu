@@ -120,9 +120,9 @@ public:
 
 	void setIconMargins(uint16_t LeftMargin, uint16_t TopMargin);
 
-	void SetItemValue(int ItemID, float ItemValue);
+	void setItemValue(int ItemID, float ItemValue);
 
-	void SetAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
+	void setAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
 							uint16_t HighlightTextColor, uint16_t HighlightColor, uint16_t HighlightBorderColor,
 							uint16_t SelectedTextColor, uint16_t SelectedColor, uint16_t SelectBorderColor,
 							uint16_t DisableTextColor ,	uint16_t TitleTextColor, uint16_t TitleFillColor);
