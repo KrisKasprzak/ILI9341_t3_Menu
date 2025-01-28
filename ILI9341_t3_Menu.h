@@ -52,7 +52,7 @@
 
 	
 
-#define MAX_OPT+1 15				// max elements in a menu, increase as needed
+#define MAX_OPT 15				// max elements in a menu, increase as needed
 #define MAX_CHAR_LEN 30			// max chars in menus, increase as needed
 #define TRIANGLE_H 3.7
 #define TRIANGLE_W 2.5
