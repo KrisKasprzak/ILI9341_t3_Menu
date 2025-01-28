@@ -25,6 +25,7 @@
 	1.0		1/2022			kasprzak			initial code
 	2.0   1/2022      kasprzak      added touch support
  	4.0   8/21/2024   kasprzak      fixed a nast bug if number of menu items = MAX_OPT in the .h
+  	4.1   1/27/2025   kasprzak      fixed typo Set... -> set and #define MAX_OPT 15 (removed + 1)
 
 	// Website for generating icons
 	// https://javl.github.io/image2cpp/
@@ -35,7 +36,7 @@
 #ifndef ILI9341_MENU_H
 #define ILI9341_MENU_H
 
-#define ILI9341_MENU_VER 4.0
+#define ILI9341_MENU_VER 4.1
 
 #if ARDUINO >= 100
 	 #include "Arduino.h"
