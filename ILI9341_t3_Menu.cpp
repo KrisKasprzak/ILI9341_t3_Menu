@@ -772,6 +772,7 @@ void EditMenu::setTitleText( char *TitleText,  char *ExitText) {
 
 void EditMenu::setTitleText( char *TitleText,  char *ExitText,  char *EditText) {
 	strncpy(ttx, TitleText, MAX_CHAR_LEN);
+	strncpy(etx, ExitText, MAX_CHAR_LEN);
 	strncpy(dtx, EditText, MAX_CHAR_LEN);
 }
 
