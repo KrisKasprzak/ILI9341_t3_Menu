@@ -24,8 +24,7 @@
 	rev		date			author				change
 	1.0		1/2022			kasprzak			initial code
 	2.0   1/2022      kasprzak      added touch support
- 	4.0   8/21/2024   kasprzak      fixed a nast bug if number of menu items = MAX_OPT in the .h
-  	4.1   1/27/2025   kasprzak      fixed typo Set... -> set and #define MAX_OPT 15 (removed + 1)
+	3.0   10/2023     kasprzak      fixed minor bugs
 
 	// Website for generating icons
 	// https://javl.github.io/image2cpp/
@@ -36,7 +35,7 @@
 #ifndef ILI9341_MENU_H
 #define ILI9341_MENU_H
 
-#define ILI9341_MENU_VER 4.1
+#define ILI9341_MENU_VER 3.0
 
 #if ARDUINO >= 100
 	 #include "Arduino.h"
@@ -53,7 +52,7 @@
 
 	
 
-#define MAX_OPT 15				// max elements in a menu, increase as needed
+#define MAX_OPT 17		// max elements in a menu, increase as needed
 #define MAX_CHAR_LEN 30			// max chars in menus, increase as needed
 #define TRIANGLE_H 3.7
 #define TRIANGLE_W 2.5
@@ -103,9 +102,9 @@ public:
 
 	void setTitleBarSize(uint16_t TitleTop, uint16_t TitleLeft, uint16_t TitleWith, uint16_t TitleHeight);
 
-	void setTitleText( char *TitleText,  char *ExitText);
+	void setTitleText(const char *TitleText,const  char *ExitText);
 	
-	void setTitleText( char *TitleText,  char *ExitText,  char *EditText);
+	void setTitleText(const char *TitleText, const char *ExitText, const char *EditText);
 
 	void setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin);
 
@@ -121,12 +120,15 @@ public:
 
 	void setIconMargins(uint16_t LeftMargin, uint16_t TopMargin);
 
-	void setItemValue(int ItemID, float ItemValue);
+	void SetItemValue(int ItemID, float ItemValue);
+	
+	void setLimits(int ItemID, float LowLimit, float HighLimit, float Increment, byte DecimalPlaces = 0);
 
-	void setAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
-							uint16_t HighlightTextColor, uint16_t HighlightColor, uint16_t HighlightBorderColor,
-							uint16_t SelectedTextColor, uint16_t SelectedColor, uint16_t SelectBorderColor,
-							uint16_t DisableTextColor ,	uint16_t TitleTextColor, uint16_t TitleFillColor);
+	void setAllColors(
+	uint16_t TextColor, uint16_t BackgroundColor, 
+	uint16_t HighlightTextColor, uint16_t HighlightColor, uint16_t HighlightBorderColor,
+	uint16_t SelectedTextColor, uint16_t SelectedColor, uint16_t SelectBorderColor,
+	uint16_t DisableTextColor ,	uint16_t TitleTextColor, uint16_t TitleFillColor);
 
 	void disable(int ID);
 
@@ -138,8 +140,10 @@ public:
 
 	void drawRow(int ID);
 		
-	float value[MAX_OPT+1];
-
+	float value[MAX_OPT];
+	
+	bool isEditing();
+	
 	int item;
 
 private:
@@ -161,7 +165,7 @@ private:
 	void draw565Bitmap(int16_t x, int16_t y, const uint16_t *bitmap, uint8_t w, uint8_t h);
 	
 	ILI9341_t3 *d;
-	char itemlabel[MAX_OPT+1][MAX_CHAR_LEN];
+	char itemlabel[MAX_OPT][MAX_CHAR_LEN];
 	char ttx[MAX_CHAR_LEN];
 	char etx[MAX_CHAR_LEN]; 
 	char dtx[MAX_CHAR_LEN];
@@ -177,35 +181,34 @@ private:
 	int currentID;
 	int cr;
 	byte debounce;
+	bool EditMode = false;
 	int sr, pr;
-	uint16_t col;
-	float data[MAX_OPT+1];
-	float low[MAX_OPT+1];
-	float high[MAX_OPT+1];
-	float inc[MAX_OPT+1];
-	byte dec[MAX_OPT+1];
+	float low[MAX_OPT];
+	float high[MAX_OPT];
+	float inc[MAX_OPT];
+	byte dec[MAX_OPT];
 	
-	char **itemtext[MAX_OPT+1];
+	char **itemtext[MAX_OPT];
 	
 	bool rowselected = false;
-	bool haslist[MAX_OPT+1];
-	bool enablestate[MAX_OPT+1];
+	bool haslist[MAX_OPT];
+	bool enablestate[MAX_OPT];
 	bool drawTitleFlag = true;
 	bool redraw = false;
 	uint16_t ditc = 0;
-	uint16_t temptColor = 0, bcolor, sbcolor;
-	const unsigned char	*itemBitmap[MAX_OPT+1];
-	const uint16_t *item565Bitmap[MAX_OPT+1];
-	uint8_t bmp_w[MAX_OPT+1];
-	uint8_t bmp_h[MAX_OPT+1];
-	byte IconType[MAX_OPT+1];
+	uint16_t col = 0;
+	uint16_t temptColor = 0, bcolor = 0, sbcolor = 0;
+	const unsigned char	*itemBitmap[MAX_OPT];
+	const uint16_t *item565Bitmap[MAX_OPT];
+	uint8_t bmp_w[MAX_OPT];
+	uint8_t bmp_h[MAX_OPT];
+	byte IconType[MAX_OPT];
 	uint16_t  radius = 0;
 	uint16_t thick = 0;
 	uint16_t incdelay = 50;
 	bool InputFromTouch = false;
 	bool dh = true; 
 };
-
 
 class  ItemMenu {
 
@@ -252,8 +255,10 @@ public:
 
 	void setIconMargins(uint16_t LeftMargin, uint16_t TopMargin);
 
-	void setAllColors(uint16_t TextColor, uint16_t BackgroundColor, uint16_t HighlightTextColor, uint16_t HighlightColor, 
-		uint16_t HighLightBorderColor, uint16_t DisableTextColor, uint16_t TitleTextColor, uint16_t TitleFillColor);
+	void setAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
+	uint16_t HighlightTextColor, uint16_t HighlightColor, 
+	uint16_t HighLightBorderColor, uint16_t DisableTextColor, 
+	uint16_t TitleTextColor, uint16_t TitleFillColor);
 
 	void disable(int ID);
 
@@ -265,7 +270,7 @@ public:
 
 	void drawRow(int ID, uint8_t style);
 
-	float value[MAX_OPT+1];
+	float value[MAX_OPT];
 
 	int item;
 
@@ -281,7 +286,7 @@ private:
 
 	ILI9341_t3 *d;
 	//bool enabletouch;
-	char itemlabel[MAX_OPT+1][MAX_CHAR_LEN];
+	char itemlabel[MAX_OPT][MAX_CHAR_LEN];
 	char ttx[MAX_CHAR_LEN];
 	char etx[MAX_CHAR_LEN];
 	char dtx[MAX_CHAR_LEN];
@@ -298,15 +303,15 @@ private:
 	int cr;
 	byte debounce;
 	int sr, pr;
-	const unsigned char *itemBitmap[MAX_OPT+1];
-	const uint16_t *item565Bitmap[MAX_OPT+1];
+	const unsigned char *itemBitmap[MAX_OPT];
+	const uint16_t *item565Bitmap[MAX_OPT];
 	bool rowselected = false;
 	bool drawTitleFlag = true;
 	bool redraw = false;
-	bool enablestate[MAX_OPT+1];
-	uint8_t bmp_w[MAX_OPT+1];
-	uint8_t bmp_h[MAX_OPT+1];
-	byte IconType[MAX_OPT+1];
+	bool enablestate[MAX_OPT];
+	uint8_t bmp_w[MAX_OPT];
+	uint8_t bmp_h[MAX_OPT];
+	byte IconType[MAX_OPT];
 	byte radius, thick;
 	bool InputFromTouch = false;
 	bool dh = true; // draw header
