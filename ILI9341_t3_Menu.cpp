@@ -94,7 +94,6 @@ int EditMenu::addNI(const char *ItemText, float Data, float LowLimit, float High
 
   totalID++;
   strcpy(itemlabel[totalID], ItemText);
-  data[totalID] = Data;
   low[totalID] = LowLimit;
   high[totalID] = HighLimit;
   inc[totalID] = Increment;
@@ -120,7 +119,6 @@ int EditMenu::addMono(const char *ItemText, float Data, float LowLimit, float Hi
 
 	totalID++;
 	strcpy(itemlabel[totalID], ItemText);
-	data[totalID] = Data;
 	low[totalID] = LowLimit;
 	high[totalID] = HighLimit;
 	inc[totalID] = Increment;
@@ -149,7 +147,6 @@ int EditMenu::add565(const char *ItemText, float Data, float LowLimit, float Hig
 
 	totalID++;
 	strcpy(itemlabel[totalID], ItemText);
-	data[totalID] = Data;
 	low[totalID] = LowLimit;
 	high[totalID] = HighLimit;
 	inc[totalID] = Increment;
@@ -169,6 +166,18 @@ int EditMenu::add565(const char *ItemText, float Data, float LowLimit, float Hig
 
 	enablestate[totalID] = true;
 	return (totalID);
+
+}
+
+bool EditMenu::isEditing() {
+	//Serial.println(rowselected);
+	
+	if (rowselected){
+		return true;
+	}
+	else {
+		return false;
+	}
 
 }
 
@@ -228,6 +237,7 @@ void EditMenu::drawHeader(bool ShowEdit) {
 		  d->setCursor(tbl + tox, tbt + toy);
 		  d->fillRect(tbl, tbt, tbw, tbh, ihbc);
 		  d->setTextColor(ttc);
+		  Serial.println(etx);
 		  d->print(etx);
 		}
 		else {
@@ -336,7 +346,9 @@ void EditMenu::up() {
       currentID--;
       drawItems();
     }
+	
   }
+  
 }
 
 void EditMenu::down() {
@@ -348,9 +360,11 @@ void EditMenu::down() {
     while (enablestate[currentID] == false) {
       cr++;
       currentID++;
-      drawItems();
+       drawItems();
     }
+	
   }
+ 
 }
 
 
@@ -480,7 +494,15 @@ void EditMenu::drawItems() {
 		else if (IconType[i + sr] == ICON_565) {
 			draw565Bitmap(icox,  icoy + isy - irh + (irh * i), item565Bitmap[i + sr], bmp_w[i + sr], bmp_h[i + sr] );
 		}
-
+	
+	
+		if (enablestate[i + sr]) {
+			temptColor = itc;
+		}
+		else {
+			temptColor = ditc;
+		}
+		
 		// write text
 		d->setTextColor(temptColor);
 		d->setCursor(itx , isy - irh + (irh * i) + ioy);
@@ -489,10 +511,10 @@ void EditMenu::drawItems() {
 		// write new val
 		d->setCursor(col , isy - irh + (irh * i) + ioy);
 		if (haslist[i + sr]) {
-			d->print(itemtext[i + sr][(int) data[i + sr]]);
+			d->print(itemtext[i + sr][(int) value[i + sr]]);
 		}
 		else {
-			d->print(data[i + sr], dec[i + sr]);
+			d->print(value[i + sr], dec[i + sr]);
 		}
 
 	}
@@ -645,10 +667,10 @@ void EditMenu::drawRow(int ID) {
 
     d->setCursor(col , isy - irh + (irh * (ID - sr)) + ioy);
     if (haslist[ID]) {
-      d->print(itemtext[ID][(int) data[ID]]);
+      d->print(itemtext[ID][(int) value[ID]]);
     }
     else {
-      d->print(data[ID], dec[ID]);
+      d->print(value[ID], dec[ID]);
     }
 
     // write bitmap
@@ -675,29 +697,29 @@ void EditMenu::incrementUp() {
 
   if (haslist[currentID]) {
 
-    if ((data[currentID] + inc[currentID]) < high[currentID]) {
-      data[currentID] += inc[currentID];
+    if ((value[currentID] + inc[currentID]) < high[currentID]) {
+      value[currentID] += inc[currentID];
       d->fillRect(col, isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
       d->setCursor(col , isy - irh + (irh * cr) + ioy);
-      d->print(itemtext[currentID][(int) data[currentID]]);
+      d->print(itemtext[currentID][(int) value[currentID]]);
     }
     else {
-      data[currentID] = low[currentID];
+      value[currentID] = low[currentID];
       d->fillRect(col, isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
       d->setCursor(col, isy - irh + (irh * cr) + ioy);
-      d->print(itemtext[currentID][(int) data[currentID]]);
+      d->print(itemtext[currentID][(int) value[currentID]]);
     }
 
   }
   else {
 
-    data[currentID] += inc[currentID];
-    if (data[currentID] > high[currentID]) {
-      data[currentID] = low[currentID];
+    value[currentID] += inc[currentID];
+    if (value[currentID] > high[currentID]) {
+      value[currentID] = low[currentID];
     }
     d->fillRect(col, isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
     d->setCursor(col, isy - irh + (irh * cr) + ioy);
-    d->print(data[currentID], dec[currentID]);
+    d->print(value[currentID], dec[currentID]);
   }
 
   if (IconType[currentID] == ICON_MONO) {
@@ -707,7 +729,7 @@ void EditMenu::incrementUp() {
     draw565Bitmap(icox,  icoy + isy - irh + (irh * cr), item565Bitmap[currentID], bmp_w[currentID], bmp_h[currentID] );
   }
   delay(incdelay);
-  value[currentID] = data[currentID];
+  value[currentID] = value[currentID];
 
   item = currentID;
 }
@@ -718,27 +740,27 @@ void EditMenu::incrementDown() {
   d->setTextColor(istc);
   
   if (haslist[currentID]) {
-    if ((data[currentID] - inc[currentID]) >= low[currentID]) {
-      data[currentID] -= inc[currentID];
+    if ((value[currentID] - inc[currentID]) >= low[currentID]) {
+      value[currentID] -= inc[currentID];
       d->fillRect(col , isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
       d->setCursor(col , isy - irh + (irh * cr) + ioy);
-      d->print(itemtext[currentID][(int) data[currentID]]);
+      d->print(itemtext[currentID][(int) value[currentID]]);
     }
     else {
-      data[currentID] = high[currentID] - 1;
+      value[currentID] = high[currentID] - 1;
       d->fillRect(col , isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
       d->setCursor(col, isy - irh + (irh * cr) + ioy);
-      d->print(itemtext[currentID][(int) data[currentID]]);
+      d->print(itemtext[currentID][(int) value[currentID]]);
     }
   }
   else {
-    data[currentID] -= inc[currentID];
-    if (data[currentID] < low[currentID]) {
-      data[currentID] = high[currentID];
+    value[currentID] -= inc[currentID];
+    if (value[currentID] < low[currentID]) {
+      value[currentID] = high[currentID];
     }
     d->fillRect(col, isy - irh + (irh * cr) + thick, irw - col - (2 * thick), irh - (2 * thick), isbc);
     d->setCursor(col , isy - irh + (irh * cr) + ioy);
-    d->print(data[currentID], dec[currentID]);
+    d->print(value[currentID], dec[currentID]);
   }
 
   if (IconType[currentID] == ICON_MONO) {
@@ -748,7 +770,7 @@ void EditMenu::incrementDown() {
     draw565Bitmap(icox,  icoy + isy  - irh + (irh * cr), item565Bitmap[currentID], bmp_w[currentID], bmp_h[currentID] );
   }
   delay(incdelay);
-  value[currentID] = data[currentID];
+  value[currentID] = value[currentID];
   item = currentID;
 
 }
@@ -765,12 +787,23 @@ void EditMenu::setTitleBarSize(uint16_t TitleTop, uint16_t TitleLeft, uint16_t T
 	tbh = TitleHeight;
 }
 
-void EditMenu::setTitleText( char *TitleText,  char *ExitText) {
+void EditMenu::setLimits(int ItemID, float LowLimit, float HighLimit, float Increment, byte DecimalPlaces){
+
+	low[ItemID] = LowLimit;
+	high[ItemID] = HighLimit;
+	inc[ItemID] = Increment;
+	dec[ItemID] = DecimalPlaces;
+	
+}
+
+
+
+void EditMenu::setTitleText(const char *TitleText, const char *ExitText) {
 	strncpy(ttx, TitleText, MAX_CHAR_LEN);
 	strncpy(etx, ExitText, MAX_CHAR_LEN);
 }
 
-void EditMenu::setTitleText( char *TitleText,  char *ExitText,  char *EditText) {
+void EditMenu::setTitleText(const char *TitleText, const char *ExitText,const char *EditText) {
 	strncpy(ttx, TitleText, MAX_CHAR_LEN);
 	strncpy(etx, ExitText, MAX_CHAR_LEN);
 	strncpy(dtx, EditText, MAX_CHAR_LEN);
@@ -844,9 +877,8 @@ bool EditMenu::getEnableState(int ID) {
   return enablestate[ID];
 }
 
-void EditMenu::setItemValue(int ID, float ItemValue) {
+void EditMenu::SetItemValue(int ID, float ItemValue) {
 	value[ID] = ItemValue;
-	data[ID] = ItemValue;
 }
 
 void EditMenu::drawMonoBitmap(int16_t x, int16_t y, const unsigned char *bitmap, uint8_t w, uint8_t h, uint16_t color) {
@@ -1028,6 +1060,7 @@ void ItemMenu::drawHeader(bool ShowEdit) {
 		  d->setCursor(tbl + tox, tbt + toy);
 		  d->fillRect(tbl, tbt, tbw, tbh, ihbc);
 		  d->setTextColor(ttc);
+
 		  d->print(etx);
 		}
 		else {
@@ -1060,6 +1093,8 @@ int ItemMenu::press(int16_t ScreenX, int16_t ScreenY) {
 	int bs;
 
 	InputFromTouch = true;
+	
+
 	
 	// check if header pressed
 	if (  (ScreenX > tbl) && (ScreenX < (tbw + tbl))  &&  (ScreenY > tbt ) && (ScreenY < (tbt + tbh) )) {
@@ -1095,12 +1130,15 @@ int ItemMenu::press(int16_t ScreenX, int16_t ScreenY) {
 	// now process the menu press
 	  for (i = 1; i <= imr; i++) {
 		bs = icox + bmp_w[i + sr] + isx;
+		
+	
 		itx = bs + iox;
+	
 		if (
 		  (ScreenX > bs) &&
-		  (ScreenY > (isy + (irh * (i - 1)))) &&
+		  (ScreenY > (isy + (irh * (i - 1))) ) &&
 		  (ScreenX < (irw)) &&
-		  (ScreenY < (isy + irh + (irh * (i - 1))))
+		  (ScreenY < (isy + irh + (irh * (i - 1))) )
 		) 
 		{
 		if (!enablestate[i + sr]) {
@@ -1287,6 +1325,10 @@ void ItemMenu::drawItems() {
       temptColor = ihtc;
 
     }
+	
+	if (!enablestate[i + sr]) {
+		temptColor = ditc;
+	}
 
     // write bitmap
 
@@ -1301,6 +1343,8 @@ void ItemMenu::drawItems() {
     d->setTextColor(temptColor);
     d->setCursor(itx , isy - irh + (irh * i) + ioy);
     d->print(itemlabel[i + sr]);
+	
+	
   }
 
   moreup = false;
@@ -1383,7 +1427,7 @@ void ItemMenu::setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin) {
 
 void ItemMenu::setMenuBarMargins(uint16_t LeftMargin, uint16_t Width, byte BorderRadius, byte BorderThickness) {
   isx = LeftMargin;  // pixels to offset text in menu bar
-  irw = Width - isx;  // pixels to offset text in menu bar
+  irw = Width; // - isx;  // pixels to offset text in menu bar
   radius = BorderRadius;
   thick = BorderThickness;
 
@@ -1395,9 +1439,7 @@ void ItemMenu::setItemColors(uint16_t DisableTextColor, uint16_t BorderColor) {
 }
 
 
-void ItemMenu::setAllColors(uint16_t TextColor, uint16_t BackgroundColor, uint16_t HighlightTextColor, uint16_t HighlightColor, 
-	
-	uint16_t HighLightBorderColor, uint16_t DisableTextColor, uint16_t TitleTextColor, uint16_t TitleFillColor) {
+void ItemMenu::setAllColors(uint16_t TextColor, uint16_t BackgroundColor, uint16_t HighlightTextColor, uint16_t HighlightColor, uint16_t HighLightBorderColor, uint16_t DisableTextColor, uint16_t TitleTextColor, uint16_t TitleFillColor) {
 
 	itc = TextColor;
 	ibc = BackgroundColor;
