@@ -2150,7 +2150,7 @@ void ProcessColorMenu() {
   Serial.println(C_VALUES[(int)ColorMenu.value[ColorOption2]]);
 
   // these are basic color settins, but meny will not update
-  // you will need to call setItemColors or SetAllColors to change them
+  // you will need to call setItemColors or setAllColors to change them
   MENU_BACKGROUND = C_VALUES[(int)ColorMenu.value[ColorOption2]];
   VOLT_TEXT = C_VALUES[(int)ColorMenu.value[ColorOption10]];
   TITLE_TEXT = C_VALUES[(int)ColorMenu.value[ColorOption11]];
@@ -2348,7 +2348,7 @@ int ProcessButtonPress(EditMenu &TheMenu) {
   void setIncrementDelay(uint16_t Delay);
   void setMenuBarMargins(uint16_t LeftMargin, uint16_t Width, uint16_t BorderRadius, uint16_t BorderThickness);
   void setItemColors( uint16_t DisableTextColor, uint16_t BorderColor);
-  void EditMenu::SetAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
+  void EditMenu::setAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
 							uint16_t HighlightTextColor, uint16_t HighlightColor, uint16_t HighlightBorderColor,
 							uint16_t SelectedTextColor, uint16_t SelectedColor, uint16_t SelectBorderColor,
 							uint16_t DisableTextColor ,	uint16_t TitleTextColor, uint16_t TitleFillColor){
@@ -2367,3 +2367,4 @@ int ProcessButtonPress(EditMenu &TheMenu) {
 
 
 */
+
