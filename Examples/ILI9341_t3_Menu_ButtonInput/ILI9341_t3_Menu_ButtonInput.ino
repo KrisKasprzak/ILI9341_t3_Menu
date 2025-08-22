@@ -2111,7 +2111,7 @@ void ProcessColorMenu() {
 
   // set Option menu colors
 
-  MainMenu.SetAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
+  MainMenu.setAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
                         C_VALUES[ (int) ColorMenu.value[ColorOption2]],
                         C_VALUES[ (int) ColorMenu.value[ColorOption3]],
                         C_VALUES[ (int) ColorMenu.value[ColorOption4]],
@@ -2120,7 +2120,7 @@ void ProcessColorMenu() {
                         C_VALUES[ (int) ColorMenu.value[ColorOption10]],
                         C_VALUES[ (int) ColorMenu.value[ColorOption11]]);
 
-  OptionMenu.SetAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
+  OptionMenu.setAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
                           C_VALUES[ (int) ColorMenu.value[ColorOption2]],
                           C_VALUES[ (int) ColorMenu.value[ColorOption3]],
                           C_VALUES[ (int) ColorMenu.value[ColorOption4]],
@@ -2132,7 +2132,7 @@ void ProcessColorMenu() {
                           C_VALUES[ (int) ColorMenu.value[ColorOption10]],
                           C_VALUES[ (int) ColorMenu.value[ColorOption11]]);
   // set color menu colors
-  ColorMenu.SetAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
+  ColorMenu.setAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
                          C_VALUES[ (int) ColorMenu.value[ColorOption2]],
                          C_VALUES[ (int) ColorMenu.value[ColorOption3]],
                          C_VALUES[ (int) ColorMenu.value[ColorOption4]],
@@ -2144,7 +2144,7 @@ void ProcessColorMenu() {
                          C_VALUES[ (int) ColorMenu.value[ColorOption10]],
                          C_VALUES[ (int) ColorMenu.value[ColorOption11]]);
   // set color menu colors
-  WirelessMenu.SetAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
+  WirelessMenu.setAllColors(C_VALUES[ (int) ColorMenu.value[ColorOption1]],
                             C_VALUES[ (int) ColorMenu.value[ColorOption2]],
                             C_VALUES[ (int) ColorMenu.value[ColorOption3]],
                             C_VALUES[ (int) ColorMenu.value[ColorOption4]],
@@ -2198,3 +2198,4 @@ void ProcessWirelessMenu() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // end of example
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
