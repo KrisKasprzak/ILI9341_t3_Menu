@@ -1878,7 +1878,7 @@ void ProcessMainMenu() {
     // attempt to debouce these darn things...
     if (digitalRead(DN_PIN) == LOW) {
       // debounce
-      while (digitalRead(UP_PIN) == LOW) {
+      while (digitalRead(DN_PIN) == LOW) {
         delay(20);
       }
       MainMenu.MoveDown();
@@ -1887,7 +1887,7 @@ void ProcessMainMenu() {
     // but wait...the user pressed the button on the encoder
     if (digitalRead(EN_PIN) == LOW) {
       // debounce
-      while (digitalRead(UP_PIN) == LOW) {
+      while (digitalRead(EN_PIN) == LOW) {
         delay(20);
       }
       // get the row the selector is on
@@ -2198,4 +2198,5 @@ void ProcessWirelessMenu() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // end of example
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
 
