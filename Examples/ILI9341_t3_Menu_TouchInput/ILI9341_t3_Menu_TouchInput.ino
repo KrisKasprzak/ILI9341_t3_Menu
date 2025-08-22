@@ -2290,7 +2290,7 @@ int ProcessButtonPress(EditMenu &TheMenu) {
   void setItemColors( uint16_t DisableTextColor, uint16_t BorderColor, uint16_t EditModeBorderColor = 0);
   void setItemTextMargins(uint16_t LeftMargin, uint16_t TopMargin, uint16_t MenuMargin);
   void setItemText(int ItemID, const char *ItemText);
-  void SetAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
+  void setAllColors(uint16_t TextColor, uint16_t BackgroundColor, 
 							uint16_t HighlightTextColor, uint16_t HighlightColor, uint16_t HighlightBorderColor,
 							uint16_t SelectedTextColor, uint16_t SelectedColor, uint16_t SelectBorderColor,
 							uint16_t DisableTextColor ,	uint16_t TitleTextColor, uint16_t TitleFillColor);
@@ -2307,3 +2307,4 @@ int ProcessButtonPress(EditMenu &TheMenu) {
 
 
 */
+
