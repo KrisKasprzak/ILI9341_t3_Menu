@@ -75,9 +75,9 @@ void EditMenu::init(uint16_t TextColor, uint16_t BackgroundColor,
   ttc = TextColor;      // title text color
   tfc = HighlightColor;     // title fill color
   ditc = MENU_C_DKGREY;
-  strncpy(ttx, TitleText, MAX_CHAR_LEN);
-  strncpy(etx, EXIT_TEXT, MAX_CHAR_LEN);
-  strncpy(dtx, EDIT_TEXT, MAX_CHAR_LEN);
+  strncpy(ttx, TitleText, MAX_CHAR_LEN-1);
+  strncpy(etx, EXIT_TEXT, MAX_CHAR_LEN-1);
+  strncpy(dtx, EDIT_TEXT, MAX_CHAR_LEN-1);
   currentID = 0;    // id of current highlighted or selected item (1 to ID)
   cr = 0;       // current selected row on the screen (1 to mr-1)
   totalID = 0;    // maximum number of items (where first position is 1)
@@ -170,7 +170,6 @@ int EditMenu::add565(const char *ItemText, float Data, float LowLimit, float Hig
 }
 
 bool EditMenu::isEditing() {
-	//Serial.println(rowselected);
 	
 	if (rowselected){
 		return true;
@@ -183,7 +182,7 @@ bool EditMenu::isEditing() {
 
 int EditMenu::selectRow() {
 	
-	InputFromTouch = false;
+	// InputFromTouch = false;
 	if (currentID == 0) {
 		// trigger to exit out of the menu
 		item = 0;
@@ -213,73 +212,68 @@ void EditMenu::drawHeader(bool ShowEdit) {
    
 	d->setFont(titlef);
 
-	if (ShowEdit){
-	  // draw new menu bar
-	  d->setCursor(tbl + tox, tbt + toy);
-	  d->fillRect(tbl, tbt, tbw, tbh, ihbc);
-	  d->setTextColor(ttc);
-	  d->print(dtx);
-	  // up arrow
-      d->fillTriangle( tbl +  25 + 15 , tbt + tbh - 10, // bottom left
-                       tbl +  25 - 15 , tbt + tbh - 10, // bottom right
-                       tbl +  25    , tbt + 10, //center
-                       ttc);
-      // down arrow
-      d->fillTriangle( tbw -  25 + 15 , tbt + 10, // top left
-                       tbw -  25 - 15 , tbt + 10, // top right
-                       tbw -  25    , tbt + tbh - 10, //center
-                       ttc);
+	if (	InputFromTouch){
+		d->setCursor(tbl + tox, tbt + toy);
+		d->fillRect(tbl, tbt, tbw, tbh, ihbc);
+		d->setTextColor(ttc);
+		d->print(etx);
 	}
-	else {
-		
-		if (cr == 0) {
+	else {			
+		if (ShowEdit){
 		  // draw new menu bar
 		  d->setCursor(tbl + tox, tbt + toy);
 		  d->fillRect(tbl, tbt, tbw, tbh, ihbc);
 		  d->setTextColor(ttc);
-		  Serial.println(etx);
-		  d->print(etx);
+		  d->print(dtx);  					   
 		}
-		else {
-		  // draw new menu bar
-		  d->setCursor(tbl + tox, tbt + toy);
-		  d->fillRect(tbl, tbt, tbw, tbh, tfc);
-		  d->setTextColor(ttc);
-		  d->print(ttx);
-		}
-		if (totalID > imr){
-			// up arrow
-			d->fillTriangle( tbl +  25 + 15 , tbt + tbh - 10, // bottom left
-						   tbl +  25 - 15 , tbt + tbh - 10, // bottom right
-						   tbl +  25    , tbt + 10, //center
-						   ttc);
-			// down arrow
-			d->fillTriangle( tbw -  25 + 15 , tbt + 10, // top left
-						   tbw -  25 - 15 , tbt + 10, // top right
-						   tbw -  25    , tbt + tbh - 10, //center
-						   ttc);
+		else {			
+			if (cr == 0) {
+			  // draw new menu bar
+			  d->setCursor(tbl + tox, tbt + toy);
+			  d->fillRect(tbl, tbt, tbw, tbh, ihbc);
+			  d->setTextColor(ttc);
+			  d->print(etx);
+			}
+			else {
+			  // draw new menu bar
+			  d->setCursor(tbl + tox, tbt + toy);
+			  d->fillRect(tbl, tbt, tbw, tbh, tfc);
+			  d->setTextColor(ttc);
+			  d->print(ttx);
+			}
 		}
 	}
-		
+	// down arrow
+  d->fillTriangle( tbl +  25 + 15 , tbt + 10, // top left
+				   tbl +  25 - 15 , tbt + 10, // top right
+				   tbl +  25    , tbt + tbh - 10, //center
+				   ttc);
+  // up arrow
+  d->fillTriangle( tbw -  25 + 15 , tbt + tbh - 10, // bottom left
+				   tbw -  25 - 15 , tbt + tbh - 10, // bottom right
+				   tbw -  25    , tbt + 10, //center
+				   ttc);
 }
 
 
 int EditMenu::press(int16_t ScreenX, int16_t ScreenY) {
 
 	int bs;
-	InputFromTouch = true;
 
+	InputFromTouch = true;
 	// check if header pressed
 	if (  (ScreenX > tbl) && (ScreenX < (tbw + tbl))  &&  (ScreenY > tbt ) && (ScreenY < (tbt + tbh) )) {
 
 		if (ScreenX < (tbl + 25 + 15)) {
 		  // up arrow
+		  InputFromTouch = true;
 		  MoveDown();
 		  return -1;
 		}
 
 		if (ScreenX > (tbw - 25 - 15)) {
 		  // down arrow
+		   InputFromTouch = true;
 		  MoveUp();
 		  return -1;
 		}
@@ -337,33 +331,50 @@ int EditMenu::press(int16_t ScreenX, int16_t ScreenY) {
 }
 
 void EditMenu::up() {
-  cr--;
-  currentID--;
-  drawItems();
-  if (enablestate[currentID] == false) {
-    while (enablestate[currentID] == false) {
-      cr--;
-      currentID--;
-      drawItems();
-    }
+
+	cr--;
+	currentID--; 	
 	
-  }
-  
+	if (InputFromTouch){
+		if (cr < imr){
+		cr =-1;
+		}
+	}
+	
+	drawItems();
+	
+	if (enablestate[currentID] == false) {
+		while (enablestate[currentID] == false) {
+			cr--;
+			currentID--;
+			drawItems();
+		}
+
+	}
+
 }
 
 void EditMenu::down() {
 
-  cr++;
-  currentID++;
-  drawItems();
-  if (enablestate[currentID] == false) {
-    while (enablestate[currentID] == false) {
-      cr++;
-      currentID++;
-       drawItems();
-    }
+	cr++;
+	currentID++; 	
+	drawItems();
 	
-  }
+	if (InputFromTouch){
+		if (cr < imr){
+			cr = imr;
+			currentID = imr; 
+		}
+	}
+
+	if (enablestate[currentID] == false) {
+		while (enablestate[currentID] == false) {
+			cr++;
+			currentID++;
+			drawItems();
+		}
+
+	}
  
 }
 
@@ -374,6 +385,7 @@ void EditMenu::MoveUp() {
     incrementUp();
   }
   else {
+
     up();
   }
 
@@ -409,9 +421,10 @@ void EditMenu::drawItems() {
 	if ((currentID >  totalID) && (sr >= 0) ) {
 		// up to top
 		cr = 0;
-		currentID = 0;
-		sr = 0;
-		redraw = true;
+		currentID =  0;
+		sr =  0;
+		redraw = true;	
+		
 	}
 	else if ( (cr < 0) && (sr == 0) ) {
 		//  pan whole menu to bottom
@@ -422,7 +435,7 @@ void EditMenu::drawItems() {
 	}
 	else if ( (cr > imr) && ((sr + cr) > totalID) ) {
 		//  pan whole menu to top
-		cr = 1;
+		cr = 1; 
 		currentID = 1;
 		sr = 0;
 		redraw = true;
@@ -446,6 +459,7 @@ void EditMenu::drawItems() {
 
   // now draw the items in the rows
 	for (i = 1; i <= imr; i++) {
+
 		// menu bar start
 		bs = icox + bmp_w[i + sr] + isx;
 
@@ -470,20 +484,20 @@ void EditMenu::drawItems() {
 			d->fillRect(bs, isy - irh + (irh * pr) , irw - bs, irh, ibc); // back color
 		}
 
-		if ((i == cr) && (!InputFromTouch)) {
+		if (!InputFromTouch) {
+			if (i == cr) {
 
+			  if (radius > 0) {
+					d->fillRoundRect(bs,      isy - irh + (irh * i) ,      irw - bs,       irh,        radius,   bcolor);
+					d->fillRoundRect(bs + thick,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick),  irh - (2 * thick),  radius,   ihbc);
+			  }
+			  else {  
+					d->fillRect(bs,       isy - irh + (irh * i) ,      irw - bs  ,        irh, bcolor);
+					d->fillRect(bs + thick ,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick) , irh - (2 * thick), ihbc);
+			  }
 
-		  if (radius > 0) {
-				d->fillRoundRect(bs,      isy - irh + (irh * i) ,      irw - bs,       irh,        radius,   bcolor);
-				d->fillRoundRect(bs + thick,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick),  irh - (2 * thick),  radius,   ihbc);
-		  }
-		  else {  
-				d->fillRect(bs,       isy - irh + (irh * i) ,      irw - bs  ,        irh, bcolor);
-				d->fillRect(bs + thick ,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick) , irh - (2 * thick), ihbc);
-		  }
-
-		  temptColor = ihtc;
-
+			  temptColor = ihtc;
+			}
 		}
 
 		// write bitmap
@@ -518,7 +532,7 @@ void EditMenu::drawItems() {
 		}
 
 	}
-	InputFromTouch = false;
+	
 	pr = cr;
 
 }
@@ -799,14 +813,14 @@ void EditMenu::setLimits(int ItemID, float LowLimit, float HighLimit, float Incr
 
 
 void EditMenu::setTitleText(const char *TitleText, const char *ExitText) {
-	strncpy(ttx, TitleText, MAX_CHAR_LEN);
-	strncpy(etx, ExitText, MAX_CHAR_LEN);
+	strncpy(ttx, TitleText, MAX_CHAR_LEN-1);
+	strncpy(etx, ExitText, MAX_CHAR_LEN-1);
 }
 
 void EditMenu::setTitleText(const char *TitleText, const char *ExitText,const char *EditText) {
-	strncpy(ttx, TitleText, MAX_CHAR_LEN);
-	strncpy(etx, ExitText, MAX_CHAR_LEN);
-	strncpy(dtx, EditText, MAX_CHAR_LEN);
+	strncpy(ttx, TitleText, MAX_CHAR_LEN-1);
+	strncpy(etx, ExitText, MAX_CHAR_LEN-1);
+	strncpy(dtx, EditText, MAX_CHAR_LEN-1);
 }
 
 void EditMenu::setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin) {
@@ -961,7 +975,7 @@ void ItemMenu::init(uint16_t TextColor, uint16_t BackgroundColor,
   ttc = TextColor;    // title text color
   tfc = HighlightColor; // title fill color
   ditc = MENU_C_DKGREY;
-  strncpy(ttx, TitleText, MAX_CHAR_LEN);
+  strncpy(ttx, TitleText, MAX_CHAR_LEN-1);
   strncpy(etx, EXIT_TEXT, 6);
   strncpy(dtx, EDIT_TEXT, 6);
   item = 1;
@@ -1016,7 +1030,7 @@ int ItemMenu::add565(const char *ItemLabel, const uint16_t *Bitmap, uint8_t Bitm
   IconType[totalID] = ICON_565;
 
   enablestate[totalID] = true;
-  strncpy(itemlabel[totalID], ItemLabel, MAX_CHAR_LEN);
+  strncpy(itemlabel[totalID], ItemLabel, MAX_CHAR_LEN-1);
   return (totalID);
 }
 
@@ -1071,15 +1085,15 @@ void ItemMenu::drawHeader(bool ShowEdit) {
 		  d->print(ttx);
 		}
 		if (totalID > imr){
-			// up arrow
-			d->fillTriangle( tbl +  25 + 15 , tbt + tbh - 10, // bottom left
-						   tbl +  25 - 15 , tbt + tbh - 10, // bottom right
-						   tbl +  25    , tbt + 10, //center
+			// up arrow (right side)
+			d->fillTriangle( tbw -  25 + 15 , tbt + tbh - 10, // bottom left
+						   tbw -  25 - 15 , tbt + tbh - 10, // bottom right
+						   tbw - 25    , tbt + 10, //center
 						   ttc);
-			// down arrow
-			d->fillTriangle( tbw -  25 + 15 , tbt + 10, // top left
-						   tbw -  25 - 15 , tbt + 10, // top right
-						   tbw -  25    , tbt + tbh - 10, //center
+			// down arrow (left side)
+			d->fillTriangle( tbl +  25 + 15 , tbt + 10, // top left
+						   tbl +  25 - 15 , tbt + 10, // top right
+						   tbl +  25    , tbt + tbh - 10, //center
 						   ttc);
 		}
 	}
@@ -1311,19 +1325,19 @@ void ItemMenu::drawItems() {
       d->fillRect(bs, isy - irh + (irh * pr) , irw - bs, irh, ibc); // back color
     }
 
-	if ((i == cr) && (!InputFromTouch)) {
+	if (!InputFromTouch) {
+		if (i == cr) {
+		  if (radius > 0) {
+			d->fillRoundRect(bs, isy - irh + (irh * i) , irw - bs, irh, radius, bcolor);
+			d->fillRoundRect(bs + thick,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick),  irh - (2 * thick),  radius,   ihbc);
+		  }
+		  else {
+			d->fillRect(bs, isy - irh + (irh * i) , irw - bs  , irh, bcolor);
+			d->fillRect(bs + thick ,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick) , irh - (2 * thick), ihbc);
+		  }
 
-      if (radius > 0) {
-        d->fillRoundRect(bs, isy - irh + (irh * i) , irw - bs, irh, radius, bcolor);
-        d->fillRoundRect(bs + thick,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick),  irh - (2 * thick),  radius,   ihbc);
-      }
-      else {
-        d->fillRect(bs, isy - irh + (irh * i) , irw - bs  , irh, bcolor);
-        d->fillRect(bs + thick ,  isy - irh + (irh * i) + thick, irw - bs - (2 * thick) , irh - (2 * thick), ihbc);
-      }
-
-      temptColor = ihtc;
-
+		  temptColor = ihtc;
+		}
     }
 	
 	if (!enablestate[i + sr]) {
@@ -1410,14 +1424,14 @@ void ItemMenu::setTitleBarSize( uint16_t TitleTop, uint16_t TitleLeft, uint16_t 
 }
 
 void ItemMenu::setTitleText(char *TitleText, char *ExitText) {
-  strncpy(ttx, TitleText, MAX_CHAR_LEN);
-  strncpy(etx, ExitText, MAX_CHAR_LEN);
+  strncpy(ttx, TitleText, MAX_CHAR_LEN-1);
+  strncpy(etx, ExitText, MAX_CHAR_LEN-1);
 }
 
 void ItemMenu::setTitleText(char *TitleText, char *ExitText, char *EditText) {
-  strncpy(ttx, TitleText, MAX_CHAR_LEN);
-  strncpy(etx, ExitText, MAX_CHAR_LEN);
-  strncpy(dtx, EditText, MAX_CHAR_LEN);
+  strncpy(ttx, TitleText, MAX_CHAR_LEN-1);
+  strncpy(etx, ExitText, MAX_CHAR_LEN-1);
+  strncpy(dtx, EditText, MAX_CHAR_LEN-1);
 }
 
 void ItemMenu::setTitleTextMargins(uint16_t LeftMargin, uint16_t TopMargin) {
@@ -1513,4 +1527,3 @@ void ItemMenu::draw565Bitmap(int16_t x, int16_t y, const uint16_t *bitmap, uint8
 /////////////////////////////////
 // end of this menu library
 /////////////////////////////////
-
