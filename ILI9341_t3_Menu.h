@@ -35,7 +35,7 @@
 #ifndef ILI9341_MENU_H
 #define ILI9341_MENU_H
 
-#define ILI9341_MENU_VER 3.0
+#define ILI9341_MENU_VER 3.1
 
 #if ARDUINO >= 100
 	 #include "Arduino.h"
@@ -52,8 +52,8 @@
 
 	
 
-#define MAX_OPT 17		// max elements in a menu, increase as needed
-#define MAX_CHAR_LEN 30			// max chars in menus, increase as needed
+#define MAX_OPT 17		 // max elements in a menu, increase as needed
+#define MAX_CHAR_LEN 31	 // make it 1 bigger than you need to accomodate null terminator, max chars in menus, increase as needed
 #define TRIANGLE_H 3.7
 #define TRIANGLE_W 2.5
 #define MENU_C_DKGREY 0x4A49	// used for disable color, method to change
@@ -292,17 +292,17 @@ private:
 	char dtx[MAX_CHAR_LEN];
 	ILI9341_t3_font_t itemf;
 	ILI9341_t3_font_t titlef;
-	uint16_t bkgr, isx, itx, isy, irh, itc, ibc, ihbc, ihtc, isc, imr, irw, ioy, iox;	// item variables
-	uint16_t tbl, tbt, tbw, tbh, ttc, tfc, tox, toy, icox, icoy, di, mm;	// title variables
-	uint16_t ditc, difc, temptColor, bcolor;
+	uint16_t bkgr=0, isx=0, itx=0, isy=0, irh=0, itc=0, ibc=0, ihbc=0, ihtc=0, isc=0, imr=0, irw=0, ioy=0, iox=0;	// item variables
+	uint16_t tbl=0, tbt=0, tbw=0, tbh=0, ttc=0, tfc=0, tox=0, toy=0, icox=0, icoy=0, di=0, mm=0;	// title variables
+	uint16_t ditc=0, difc=0, temptColor=0, bcolor=0;
 	bool hasIcon = false, moreup = false, moredown = false;
-	int i;
-	int totalID;
-	int MaxRow;
-	int currentID;
-	int cr;
-	byte debounce;
-	int sr, pr;
+	int i=0;
+	int totalID=0;
+	int MaxRow=0;
+	int currentID=0;
+	int cr=0;
+	byte debounce=0;
+	int sr=0, pr=0;
 	const unsigned char *itemBitmap[MAX_OPT];
 	const uint16_t *item565Bitmap[MAX_OPT];
 	bool rowselected = false;
@@ -312,7 +312,7 @@ private:
 	uint8_t bmp_w[MAX_OPT];
 	uint8_t bmp_h[MAX_OPT];
 	byte IconType[MAX_OPT];
-	byte radius, thick;
+	byte radius=0, thick;
 	bool InputFromTouch = false;
 	bool dh = true; // draw header
 	
